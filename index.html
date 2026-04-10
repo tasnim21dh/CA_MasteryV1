@@ -17,10 +17,9 @@
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
         .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         .btn-hover { transition: all 0.2s ease-in-out; }
-        .btn-hover:hover:not(:disabled) { transform: translateY(-2px); }
+        .btn-hover:hover { transform: translateY(-2px); }
         .correct-ans { background-color: rgba(22, 101, 52, 0.8) !important; border-color: #22c55e !important; }
         .wrong-ans { background-color: rgba(153, 27, 27, 0.8) !important; border-color: #ef4444 !important; }
-        .selected-mrq { border-color: #3b82f6 !important; background-color: rgba(59, 130, 246, 0.2) !important; }
         .timer-warning { color: #ef4444; animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         ::-webkit-scrollbar { width: 6px; }
@@ -28,11 +27,11 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8 relative">
+<body class="min-h-screen p-4 md:p-8">
 
     <header class="max-w-6xl mx-auto mb-8 flex justify-between items-center glass-panel p-4 rounded-2xl sticky top-4 z-50 shadow-lg hidden" id="app-header">
         <div class="flex items-center gap-4">
-            <button onclick="navigate('dashboard')" class="p-2 hover:bg-slate-700 rounded-lg transition"><i data-lucide="home"></i></button>
+            <button onclick="navigate(1)" class="p-2 hover:bg-slate-700 rounded-lg transition"><i data-lucide="home"></i></button>
             <div>
                 <h1 class="text-xl font-bold tracking-wider">CA Master</h1>
                 <p class="text-xs text-slate-400" id="header-subtitle">Dashboard</p>
@@ -52,7 +51,7 @@
 
     <main class="max-w-6xl mx-auto space-y-8" id="main-content">
         
-        <div id="page-dashboard" class="space-y-8 block">
+        <div id="page-1" class="space-y-8 block">
             <div class="text-center mb-8">
                 <h1 class="text-4xl font-bold text-white">CA Master</h1>
                 <p class="text-slate-400 mt-2">Select a subject to access your library or target weak areas.</p>
@@ -71,26 +70,17 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="glass-panel p-6 rounded-2xl border-l-4 border-blue-500">
-                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i data-lucide="layers" class="text-blue-400"></i> Study by Q. Type</h2>
-                    <div id="type-blocks" class="grid grid-cols-2 gap-2"></div>
-                </div>
-                <div class="glass-panel p-6 rounded-2xl border-l-4 border-green-500">
-                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i data-lucide="bar-chart" class="text-green-400"></i> Study by Difficulty</h2>
-                    <div id="diff-blocks" class="grid grid-cols-2 gap-2"></div>
-                </div>
-            </div>
-
             <div class="glass-panel rounded-2xl overflow-hidden">
                 <div class="flex border-b border-slate-700">
                     <button onclick="switchTab('history')" id="tab-history" class="flex-1 py-4 font-bold bg-slate-800 text-blue-400 border-b-2 border-blue-500">History</button>
                     <button onclick="switchTab('uploads')" id="tab-uploads" class="flex-1 py-4 font-bold text-slate-400 hover:bg-slate-800 border-b-2 border-transparent">Upload Management</button>
                 </div>
+                
                 <div id="content-history" class="p-6 block">
                     <div class="flex flex-wrap gap-2 mb-6" id="history-filters"></div>
                     <div id="history-list" class="space-y-3"><p class="text-slate-400 text-center py-4">Select a subject to view past attempts.</p></div>
                 </div>
+
                 <div id="content-uploads" class="p-6 hidden overflow-x-auto">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-slate-800 text-slate-400">
@@ -114,8 +104,7 @@
                     <div class="space-y-2">
                         <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Data Clearing</p>
                         <button onclick="globalClear('history')" class="w-full p-2 bg-slate-800 hover:bg-red-900/50 text-red-400 text-sm rounded border border-slate-700 transition flex items-center justify-between">Clear All History <i data-lucide="trash" class="w-4 h-4"></i></button>
-                        <button onclick="globalClear('uploads')" class="w-full p-2 bg-slate-800 hover:bg-red-900/50 text-red-400 text-sm rounded border border-slate-700 transition flex items-center justify-between">Clear All Uploads (Keep Banks) <i data-lucide="trash" class="w-4 h-4"></i></button>
-                        <button onclick="globalClear('banks')" class="w-full p-2 bg-slate-800 hover:bg-red-900/50 text-red-400 text-sm rounded border border-slate-700 transition flex items-center justify-between">Clear Revision Banks <i data-lucide="trash" class="w-4 h-4"></i></button>
+                        <button onclick="globalClear('banks')" class="w-full p-2 bg-slate-800 hover:bg-red-900/50 text-red-400 text-sm rounded border border-slate-700 transition flex items-center justify-between">Clear All Revision Banks <i data-lucide="trash" class="w-4 h-4"></i></button>
                     </div>
                     
                     <div class="space-y-2 border-t md:border-t-0 md:border-l border-slate-700 pt-4 md:pt-0 md:pl-6">
@@ -137,171 +126,137 @@
             </div>
         </div>
 
-        <div id="page-library" class="hidden space-y-8 block">
-            <button onclick="navigate('dashboard')" class="text-slate-400 hover:text-white flex items-center gap-2 mb-4"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+        <div id="page-2" class="hidden space-y-8 block">
+            <button onclick="navigate(1)" class="text-slate-400 hover:text-white flex items-center gap-2 mb-4"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Dashboard</button>
             <div class="text-center mb-8">
                 <h2 class="text-4xl font-bold text-white" id="library-title">Subject Library</h2>
+                <p class="text-slate-400 mt-2">Upload a new file or select from your saved bank.</p>
             </div>
-            <div class="glass-panel p-10 rounded-3xl border-2 border-dashed border-slate-500 cursor-pointer hover:border-blue-500 text-center group" ondrop="handleDrop(event)" ondragover="event.preventDefault()">
+            <div class="glass-panel p-10 rounded-3xl border-2 border-dashed border-slate-500 cursor-pointer hover:border-blue-500 transition text-center group" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
                 <input type="file" id="csv-upload" accept=".csv" class="hidden" onchange="handleFileSelect(event)">
                 <label for="csv-upload" class="cursor-pointer block">
-                    <i data-lucide="file-up" class="mx-auto w-16 h-16 text-slate-500 group-hover:text-blue-400 mb-4"></i>
-                    <p class="text-xl font-bold text-slate-300">Drop CSV file here</p>
-                    <p class="text-slate-500 text-sm mt-2">Required Headers: question, option_a, option_b, option_c, option_d, correct_options, category3</p>
+                    <i data-lucide="file-up" class="mx-auto w-16 h-16 text-slate-500 group-hover:text-blue-400 transition mb-4"></i>
+                    <p class="text-xl font-bold text-slate-300 group-hover:text-white">Drop CSV file here</p>
+                    <p class="text-slate-500 mt-1">or click to browse</p>
                 </label>
             </div>
-            <div id="upload-conf" class="hidden glass-panel p-6 rounded-xl border border-green-500 bg-green-900/20 text-center">
-                <p class="text-green-400 font-bold" id="file-name-display"></p>
-                <button onclick="processUploadToDB()" class="mt-4 px-8 py-3 bg-blue-600 rounded-xl text-white font-bold">Save & Setup Exam</button>
+            <div id="upload-conf" class="hidden glass-panel p-6 rounded-xl border border-green-500/30 bg-green-900/20 text-center">
+                <p class="text-green-400 font-bold text-lg" id="file-name-display"></p>
+                <button onclick="processUploadToDB()" class="mt-4 px-8 py-3 bg-blue-600 rounded-xl font-bold w-full md:w-auto btn-hover text-white">Save & Setup Exam</button>
             </div>
             <div class="mt-12">
-                <h3 class="text-xl font-bold mb-4 text-slate-300">Saved Files</h3>
+                <h3 class="text-xl font-bold mb-4 flex items-center gap-2 text-slate-300"><i data-lucide="library" class="w-5 h-5"></i> Saved Files</h3>
                 <div id="library-files-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
         </div>
 
-        <div id="page-filter" class="hidden space-y-8 block max-w-3xl mx-auto">
-            <button onclick="navigate('dashboard')" class="text-slate-400 hover:text-white flex items-center gap-2 mb-4"><i data-lucide="arrow-left" class="w-4 h-4"></i> Cancel</button>
-            
-            <div class="text-center mb-8">
-                <h2 class="text-3xl font-bold text-white" id="filter-title">Session Setup</h2>
-                <p class="text-slate-400 mt-2" id="filter-subtitle"></p>
-            </div>
+        <div id="page-5" class="hidden space-y-8 block">
+            <button onclick="navigate(1)" class="text-slate-400 hover:text-white flex items-center gap-2 mb-4"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Dashboard</button>
+            <div class="glass-panel p-8 md:p-12 rounded-3xl text-center max-w-2xl mx-auto border-t-4" id="rev-card">
+                <div class="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-6" id="rev-icon-bg"><i data-lucide="target" id="rev-icon" class="w-8 h-8"></i></div>
+                <h2 class="text-3xl font-bold mb-2" id="rev-title-main">Targeted Revision</h2>
+                <p class="text-slate-400 mb-8 text-lg" id="rev-meta-main">0 Questions Available</p>
 
-            <div id="filter-source-block" class="hidden glass-panel p-6 rounded-xl mb-6">
-                <h4 class="font-bold text-slate-300 mb-4 text-sm uppercase tracking-wider">1. Select Source</h4>
-                <div class="grid grid-cols-2 gap-4">
-                    <button id="btn-src-all" onclick="setFilterSource('all')" class="p-3 bg-blue-900/30 border-2 border-blue-500 rounded-lg text-white font-bold transition">All Questions</button>
-                    <button id="btn-src-mistakes" onclick="setFilterSource('mistakes')" class="p-3 bg-slate-800 border-2 border-slate-700 rounded-lg text-slate-400 font-bold hover:border-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition">Mistakes Only</button>
-                </div>
-            </div>
-
-            <div class="glass-panel p-6 rounded-xl mb-6">
-                <h4 class="font-bold text-slate-300 mb-4 text-sm uppercase tracking-wider">Quantity</h4>
-                <div class="grid grid-cols-3 gap-4">
-                    <button onclick="setFilterQty(10)" id="btn-qty-10" class="p-3 bg-slate-800 border-2 border-slate-700 rounded-lg text-white font-bold transition">10 Qs</button>
-                    <button onclick="setFilterQty(30)" id="btn-qty-30" class="p-3 bg-slate-800 border-2 border-slate-700 rounded-lg text-white font-bold transition">30 Qs</button>
-                    <button onclick="setFilterQty('all')" id="btn-qty-all" class="p-3 bg-blue-900/30 border-2 border-blue-500 rounded-lg text-blue-400 font-bold transition">All</button>
-                </div>
-            </div>
-
-            <div class="glass-panel p-6 rounded-xl">
-                <div class="flex justify-between items-center mb-4">
-                    <h4 class="font-bold text-slate-300 text-sm uppercase tracking-wider">Subjects Included</h4>
-                    <button onclick="toggleAllSubjects()" class="text-xs text-blue-400 hover:text-blue-300">Toggle All</button>
-                </div>
-                <div id="filter-subject-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-            </div>
-
-            <div class="flex gap-4 pt-4">
-                <button onclick="launchFilteredSession('practice')" class="flex-1 p-4 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold shadow-lg transition">Start Practice Mode</button>
-                <button onclick="launchFilteredSession('exam')" id="btn-filter-exam" class="flex-1 p-4 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold shadow-lg transition">Start Exam Mode</button>
-            </div>
-        </div>
-
-        <div id="page-strategy" class="hidden space-y-8 mt-12">
-            <button onclick="navigate('library')" class="text-slate-400 hover:text-white flex items-center gap-2 mb-4"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Library</button>
-            <div class="text-center mb-8">
-                <h2 class="text-3xl font-bold text-white">Select Strategy</h2>
-                <p class="text-slate-400 mt-2" id="strat-file-name">File Name</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                <button onclick="startQuizEngine('practice')" class="glass-panel p-8 rounded-2xl text-left border-2 border-transparent hover:border-green-500 btn-hover group">
-                    <div class="bg-green-500/20 p-4 rounded-full w-fit mb-6 text-green-400"><i data-lucide="book-open"></i></div>
-                    <h3 class="text-2xl font-bold text-white mb-2">Practice Mode</h3>
-                    <p class="text-slate-400">Instant feedback, explanations, no pressure.</p>
-                </button>
-                <button onclick="startQuizEngine('exam')" class="glass-panel p-8 rounded-2xl text-left border-2 border-transparent hover:border-red-500 btn-hover group">
-                    <div class="bg-red-500/20 p-4 rounded-full w-fit mb-6 text-red-400"><i data-lucide="timer"></i></div>
-                    <h3 class="text-2xl font-bold text-white mb-2">Exam Mode</h3>
-                    <p class="text-slate-400">1-hour strict countdown, hidden feedback.</p>
-                </button>
-            </div>
-        </div>
-
-        <div id="page-quiz" class="hidden space-y-6 max-w-4xl mx-auto">
-            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div id="progress-bar" class="bg-blue-500 h-2 transition-all"></div></div>
-            <div class="glass-panel p-6 md:p-10 rounded-2xl relative">
-                <div class="flex justify-between mb-6 pb-4 border-b border-slate-700 items-center">
+                <div class="space-y-8 text-left">
                     <div>
-                        <span id="q-counter" class="text-sm font-bold text-slate-400 uppercase tracking-widest"></span>
-                        <span id="q-meta-tags" class="ml-3 text-xs text-slate-500 hidden md:inline"></span>
+                        <h4 class="font-bold text-slate-300 mb-4 uppercase tracking-wider text-sm">1. Select Mode</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="setRevMode('practice')" id="btn-rev-prac-full" class="p-4 bg-slate-800 rounded-xl border-2 border-slate-600 font-bold hover:border-blue-400 transition">Practice Mode</button>
+                            <button onclick="setRevMode('watch')" id="btn-rev-watch-full" class="p-4 bg-slate-800 rounded-xl border-2 border-slate-600 font-bold hover:border-blue-400 transition">Watch Mode</button>
+                        </div>
                     </div>
-                    <button onclick="toggleFlag()" id="btn-flag" class="p-2 bg-slate-800 rounded-lg text-slate-400 hover:text-purple-400 transition" title="Flag Question"><i data-lucide="flag"></i></button>
-                </div>
-                
-                <h2 id="q-text" class="text-xl md:text-2xl font-semibold mb-8 leading-relaxed text-white"></h2>
-                
-                <div id="options-grid" class="grid gap-4"></div>
-                
-                <div id="explanation-box" class="hidden mt-8 p-6 bg-slate-800/80 border-l-4 border-blue-500 rounded-r-xl">
-                    <h4 class="font-bold text-blue-400 mb-2 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4"></i> Explanation</h4>
-                    <p id="explanation-text" class="text-slate-300 text-sm mb-4 leading-relaxed"></p>
-                    <div id="exp-meta" class="text-xs text-slate-500 mb-4"></div>
-                    <button id="btn-remove-bank" class="hidden px-4 py-2 bg-slate-700/50 text-red-400 text-xs font-bold rounded hover:bg-slate-700 flex items-center gap-2"></button>
-                </div>
-                
-                <div class="mt-8 flex justify-between items-center">
-                    <button onclick="confirmEarlySubmit()" id="btn-early-submit" class="text-sm text-slate-500 hover:text-white hidden">Submit Exam Early</button>
-                    <div class="flex-1 flex justify-end gap-3">
-                        <button id="btn-check-mrq" onclick="submitMRQ()" class="hidden px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold shadow-lg transition">Check Answer</button>
-                        <button id="btn-next-q" onclick="nextQuestion()" class="hidden px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg transition">Next</button>
+                    <div id="rev-qty-section">
+                        <h4 class="font-bold text-slate-300 mb-4 uppercase tracking-wider text-sm">2. Select Quantity</h4>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button onclick="startRevision(10)" class="p-4 bg-slate-800 border-2 border-slate-700 rounded-xl font-bold hover:bg-slate-700 transition">10 Qs</button>
+                            <button onclick="startRevision(25)" class="p-4 bg-slate-800 border-2 border-slate-700 rounded-xl font-bold hover:bg-slate-700 transition">25 Qs</button>
+                            <button onclick="startRevision('all')" class="p-4 bg-slate-800 border-2 border-slate-700 rounded-xl font-bold hover:bg-slate-700 transition text-blue-400">All</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="page-results" class="hidden space-y-8 text-center max-w-4xl mx-auto">
-            <div class="glass-panel p-10 rounded-3xl">
-                <h2 class="text-3xl font-bold mb-8 text-white">Exam Complete</h2>
-                <div class="flex justify-center gap-8 md:gap-16 mb-8 border-b border-slate-700 pb-8">
-                    <div><p class="text-5xl font-bold text-blue-400" id="res-score">0</p><p class="text-slate-400 text-xs uppercase mt-3">Score</p></div>
-                    <div><p class="text-5xl font-bold text-green-400" id="res-acc">0%</p><p class="text-slate-400 text-xs uppercase mt-3">Accuracy</p></div>
-                    <div><p class="text-5xl font-bold text-purple-400" id="res-time">0m</p><p class="text-slate-400 text-xs uppercase mt-3">Time</p></div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button onclick="relaunchFromRes('retake_all')" class="p-4 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold text-white transition">Retake Full</button>
-                    <button onclick="relaunchFromRes('retake_mistakes')" id="res-btn-mistake" class="p-4 bg-orange-600/20 hover:bg-orange-600/40 border border-orange-500/50 rounded-xl font-bold text-orange-400 transition">Retake Mistakes</button>
-                    <button onclick="relaunchFromRes('watch_all')" class="p-4 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold text-white transition">Watch Full</button>
-                    <button onclick="relaunchFromRes('watch_mistakes')" id="res-btn-wmistake" class="p-4 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl font-bold text-slate-300 transition">Watch Mistakes</button>
-                </div>
-            </div>
-            <button onclick="navigate('dashboard')" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold mt-4 text-white transition">Return to Dashboard</button>
-        </div>
-
-        <div id="page-history-review" class="hidden space-y-8 block">
-            <button onclick="navigate('dashboard')" class="text-slate-400 hover:text-white flex items-center gap-2 mb-4"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Dashboard</button>
+        <div id="page-6" class="hidden space-y-8 block">
+            <button onclick="navigate(1)" class="text-slate-400 hover:text-white flex items-center gap-2 mb-4"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Dashboard</button>
             <div class="glass-panel p-8 md:p-12 rounded-3xl text-center max-w-2xl mx-auto">
-                <h2 class="text-3xl font-bold mb-2 text-white">Review Attempt</h2>
+                <h2 class="text-3xl font-bold mb-2">Review Attempt</h2>
                 <p class="text-slate-400 mb-8 text-lg" id="att-meta-main">File Name • Date</p>
                 <div class="flex justify-center gap-8 mb-10 pb-8 border-b border-slate-700">
                     <div><p class="text-4xl font-bold text-blue-400" id="att-score-disp">0/0</p><p class="text-xs text-slate-500 uppercase mt-1">Score</p></div>
                     <div><p class="text-4xl font-bold text-orange-400" id="att-miss-disp">0</p><p class="text-xs text-slate-500 uppercase mt-1">Mistakes</p></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button onclick="relaunchHistory('retake_all', 'exam')" class="p-5 bg-blue-600 rounded-xl font-bold btn-hover text-lg shadow-lg text-white">Retake Full</button>
-                    <button onclick="relaunchHistory('retake_mistakes', 'practice')" id="btn-att-rm" class="p-5 bg-orange-600 rounded-xl font-bold btn-hover text-lg shadow-lg text-white">Retake Mistakes</button>
-                    <button onclick="relaunchHistory('watch_all', 'watch')" class="p-5 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold btn-hover border border-slate-600 text-white">Watch Full</button>
-                    <button onclick="relaunchHistory('watch_mistakes', 'watch')" id="btn-att-wm" class="p-5 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold btn-hover border border-slate-600 text-slate-300">Watch Mistakes</button>
+                    <button onclick="relaunch('retake_all', 'exam')" class="p-5 bg-blue-600 rounded-xl font-bold btn-hover text-lg shadow-lg text-white">Retake Full Exam</button>
+                    <button onclick="relaunch('retake_mistakes', 'practice')" id="btn-att-rm" class="p-5 bg-orange-600 rounded-xl font-bold btn-hover text-lg shadow-lg text-white">Practice Mistakes</button>
+                    <button onclick="relaunch('watch_all', 'watch')" class="p-5 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold btn-hover border border-slate-600 text-white">Watch Full Exam</button>
+                    <button onclick="relaunch('watch_mistakes', 'watch')" id="btn-att-wm" class="p-5 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold btn-hover border border-slate-600 text-slate-300">Watch Mistakes</button>
                 </div>
             </div>
         </div>
 
-    </main>
-
-    <div id="modal-submit" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center">
-        <div class="bg-slate-800 p-8 rounded-2xl max-w-sm text-center border border-slate-700">
-            <h3 class="text-2xl font-bold text-white mb-2">Submit Exam?</h3>
-            <p class="text-slate-400 mb-6" id="modal-submit-text">You have X unanswered questions.</p>
-            <div class="flex gap-4">
-                <button onclick="document.getElementById('modal-submit').classList.add('hidden')" class="flex-1 p-3 bg-slate-700 rounded-xl text-white font-bold hover:bg-slate-600 transition">Cancel</button>
-                <button onclick="finishExam()" class="flex-1 p-3 bg-red-600 rounded-xl text-white font-bold hover:bg-red-500 transition">Submit</button>
+        <div id="page-3" class="hidden space-y-8 mt-12">
+            <button onclick="navigate(2)" id="btn-back-library" class="text-slate-400 hover:text-white flex items-center gap-2 mb-4"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Library</button>
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-white">Select Strategy</h2>
+                <p class="text-slate-400 mt-2" id="strat-file-name">File Name</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <button onclick="startQuizEngine('practice')" class="glass-panel p-8 rounded-2xl text-left border-2 border-transparent hover:border-green-500 btn-hover group">
+                    <div class="bg-green-500/20 p-4 rounded-full w-fit mb-6 text-green-400 group-hover:bg-green-500 group-hover:text-white transition"><i data-lucide="book-open" class="w-8 h-8"></i></div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Practice Mode</h3>
+                    <p class="text-slate-400">Count-up timer, instant logic explanations, no pressure.</p>
+                </button>
+                <button onclick="startQuizEngine('exam')" class="glass-panel p-8 rounded-2xl text-left border-2 border-transparent hover:border-red-500 btn-hover group">
+                    <div class="bg-red-500/20 p-4 rounded-full w-fit mb-6 text-red-400 group-hover:bg-red-500 group-hover:text-white transition"><i data-lucide="timer" class="w-8 h-8"></i></div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Exam Mode</h3>
+                    <p class="text-slate-400">1-hour strict countdown, hidden feedback, auto-submits.</p>
+                </button>
             </div>
         </div>
-    </div>
+
+        <div id="quiz-engine" class="hidden space-y-6">
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div id="progress-bar" class="bg-blue-500 h-2 transition-all duration-300"></div></div>
+            <div class="glass-panel p-6 md:p-10 rounded-2xl relative">
+                <div class="flex justify-between mb-6 pb-4 border-b border-slate-700 items-center">
+                    <span id="q-counter" class="text-sm font-bold text-slate-400 tracking-widest uppercase"></span>
+                    <button onclick="toggleFlag()" id="btn-flag" class="p-2 bg-slate-800 rounded-lg text-slate-400 hover:text-purple-400 transition" title="Flag Question"><i data-lucide="flag"></i></button>
+                </div>
+                <h2 id="q-text" class="text-xl md:text-2xl font-semibold mb-8 leading-relaxed text-white"></h2>
+                <div id="options-grid" class="grid gap-4"></div>
+                <div id="explanation-box" class="hidden mt-8 p-6 bg-slate-800/80 border-l-4 border-blue-500 rounded-r-xl">
+                    <h4 class="font-bold text-blue-400 mb-2 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4"></i> Logic & Reasoning</h4>
+                    <p id="explanation-text" class="text-slate-300 text-sm leading-relaxed"></p>
+                    <div id="exp-meta-topic" class="text-xs text-slate-400 mt-4 pt-3 border-t border-slate-700/50 flex flex-wrap gap-4"></div>
+                    <button id="btn-remove-bank" class="hidden mt-4 px-4 py-2 bg-slate-700/50 text-red-400 text-xs font-bold rounded hover:bg-slate-700 transition flex items-center gap-2"></button>
+                </div>
+                <div class="mt-8 flex justify-end">
+                    <button id="btn-next-q" onclick="nextQuestion()" class="hidden px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold btn-hover shadow-lg">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-4" class="hidden space-y-8 text-center">
+            <div class="glass-panel p-10 rounded-3xl">
+                <h2 class="text-3xl font-bold mb-8 text-white">Exam Complete</h2>
+                <div class="flex justify-center gap-8 md:gap-16 mb-8 border-b border-slate-700 pb-8">
+                    <div><p class="text-5xl font-bold text-blue-400" id="res-score">0</p><p class="text-slate-400 text-xs tracking-wider uppercase mt-3">Score</p></div>
+                    <div><p class="text-5xl font-bold text-green-400" id="res-acc">0%</p><p class="text-slate-400 text-xs tracking-wider uppercase mt-3">Accuracy</p></div>
+                    <div><p class="text-5xl font-bold text-purple-400" id="res-time">0m</p><p class="text-slate-400 text-xs tracking-wider uppercase mt-3">Time</p></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                    <button onclick="relaunchFromRes('retake_all')" class="p-4 bg-blue-600/20 text-blue-400 border border-blue-500/50 hover:bg-blue-600/40 rounded-xl font-bold btn-hover transition">Retake Full</button>
+                    <button onclick="relaunchFromRes('retake_mistakes')" id="res-btn-mistake" class="p-4 bg-orange-600/20 text-orange-400 border border-orange-500/50 hover:bg-orange-600/40 rounded-xl font-bold btn-hover transition">Retake Mistakes</button>
+                    <button onclick="relaunchFromRes('watch_all')" class="p-4 bg-green-600/20 text-green-400 border border-green-500/50 hover:bg-green-600/40 rounded-xl font-bold btn-hover transition">Watch Full</button>
+                    <button onclick="relaunchFromRes('watch_mistakes')" id="res-btn-wmistake" class="p-4 bg-purple-600/20 text-purple-400 border border-purple-500/50 hover:bg-purple-600/40 rounded-xl font-bold btn-hover transition">Watch Mistakes</button>
+                </div>
+            </div>
+            <button onclick="navigate(1)" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold mt-4 btn-hover transition text-white">Return to Dashboard</button>
+        </div>
+    </main>
 
     <script>
-        // --- SW REGISTRATION (RESTORED) ---
+        // --- SW REGISTRATION & DEBUGGER ---
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js')
             .then(reg => document.getElementById('sw-status').innerHTML = "🟢 <span class='text-green-500 font-bold'>System Online:</span> Offline Database Active")
@@ -310,29 +265,21 @@
             document.getElementById('sw-status').innerHTML = "🔴 <span class='text-red-500 font-bold'>System Error:</span> Browser does not support offline mode";
         }
 
-        const SUBJECTS = ["Assurance", "Accounting", "Business, Technology and Finance", "Management Information", "Principles of Taxation", "Business Laws", "Information Technology"];
+        const SUBJECTS = ["Assurance", "Accounting", "Business, Technology and Finance", "Management Information", "Principles of Taxation", "Business Laws", "Information Technology", "Random All"];
         const EXAM_TIME = 3600;
         let db; 
-        
-        // State Management
-        let state = {
-            activeFileId: null, fileTitle: null, mode: null, rawQ: [], actQ: [], idx: 0, 
-            score: 0, timer: null, timeLeft: EXAM_TIME, timeSpent: 0, qStartTime: 0,
-            isOffTheRecord: false, revBankType: null, missedQ: [], selAttemptId: null,
-            filter: { source: 'all', qty: 'all', subjects: [...SUBJECTS], type: null, diff: null }
-        };
+        let state = { subject: null, activeFileId: null, fileTitle: null, mode: null, rawQ: [], actQ: [], idx: 0, score: 0, timer: null, timeLeft: EXAM_TIME, timeSpent: 0, isOffTheRecord: false, revBankType: null, selAttemptId: null, missedQ: [], pendingParsedData: null };
 
-        // --- DATABASE ---
+        // --- INDEXEDDB INIT & HELPERS ---
         function initDB() {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open('CAMasterDB', 2); 
+                const request = indexedDB.open('CAMasterDB', 1);
                 request.onupgradeneeded = (e) => {
                     const database = e.target.result;
                     if(!database.objectStoreNames.contains('files')) database.createObjectStore('files', {keyPath: 'id'});
                     if(!database.objectStoreNames.contains('questions')) {
                         const qStore = database.createObjectStore('questions', {keyPath: 'uniqueId'});
                         qStore.createIndex('fileId', 'fileId', {unique: false});
-                        qStore.createIndex('category3', 'category3', {unique: false}); 
                     }
                     if(!database.objectStoreNames.contains('history')) database.createObjectStore('history', {keyPath: 'id'});
                     if(!database.objectStoreNames.contains('mistakes')) database.createObjectStore('mistakes', {keyPath: 'uniqueId'});
@@ -345,7 +292,8 @@
         function execStore(storeName, mode, callback) {
             return new Promise((resolve, reject) => {
                 const tx = db.transaction(storeName, mode);
-                const req = callback(tx.objectStore(storeName));
+                const store = tx.objectStore(storeName);
+                const req = callback(store);
                 tx.oncomplete = () => resolve(req.result);
                 tx.onerror = () => reject(tx.error);
             });
@@ -355,22 +303,67 @@
         function deleteStoreItem(store, id) { return execStore(store, 'readwrite', s => s.delete(id)); }
         function clearStore(store) { return execStore(store, 'readwrite', s => s.clear()); }
 
-        // --- INIT & ROUTING ---
-        window.onload = async () => {
+        // --- INIT ---
+        async function init() {
             await initDB();
-            await renderDashboard();
-            lucide.createIcons();
+            document.getElementById('subject-blocks').innerHTML = SUBJECTS.map(s => `
+                <button onclick="handleSubjectClick('${s}')" class="glass-panel p-6 rounded-xl font-bold hover:bg-slate-800 hover:text-blue-400 transition-all shadow-md group ${s === 'Random All' ? 'border-2 border-blue-500 text-blue-400' : ''}">
+                    <span class="group-hover:scale-105 inline-block transition-transform">${s}</span>
+                </button>`).join('');
+            await renderBanks(); await renderHistory(); await renderUploads();
+            switchTab('history'); lucide.createIcons();
             document.getElementById('app-header').classList.remove('hidden');
-        };
+        }
 
-        function navigate(pageId) {
-            ['dashboard', 'library', 'filter', 'strategy', 'quiz', 'results', 'history-review'].forEach(p => {
-                document.getElementById(`page-${p}`).classList.add('hidden');
-            });
-            document.getElementById(`page-${pageId}`).classList.remove('hidden');
-            document.getElementById('quiz-stats').classList.toggle('hidden', pageId !== 'quiz');
+        // --- NAVIGATION & ROUTING ---
+        function navigate(p) {
+            [1,2,3,4,5,6,'quiz'].forEach(x => document.getElementById(x==='quiz'?'quiz-engine':`page-${x}`).classList.add('hidden'));
+            if(p===1) { init(); }
+            document.getElementById(p==='quiz'?'quiz-engine':`page-${p}`).classList.remove('hidden');
+            document.getElementById('quiz-stats').classList.toggle('hidden', p !== 'quiz');
             clearInterval(state.timer); lucide.createIcons();
-            if(pageId === 'dashboard') renderDashboard();
+        }
+
+        async function handleSubjectClick(sub) {
+            state.subject = sub;
+            if (sub === 'Random All') {
+                const allQ = await getStoreAll('questions');
+                if(allQ.length === 0) return alert("Your library is empty. Please upload files to other subjects first.");
+                state.activeFileId = 'mixed_bag'; state.fileTitle = "Global Mixed Bag"; state.rawQ = allQ;
+                state.isOffTheRecord = false; state.revBankType = null;
+                document.getElementById('strat-file-name').innerText = `Pooled from ${allQ.length} total questions`;
+                document.getElementById('btn-back-library').setAttribute('onclick', 'navigate(1)');
+                navigate(3);
+            } else {
+                document.getElementById('library-title').innerText = sub;
+                document.getElementById('upload-conf').classList.add('hidden');
+                document.getElementById('btn-back-library').setAttribute('onclick', 'navigate(2)');
+                await renderLibraryFiles(sub);
+                navigate(2);
+            }
+        }
+
+        async function renderLibraryFiles(sub) {
+            const files = await getStoreAll('files');
+            const subFiles = files.filter(f => f.subject === sub);
+            const list = document.getElementById('library-files-list');
+            if(subFiles.length === 0) list.innerHTML = `<p class="text-slate-500 col-span-full text-center py-8">No files saved for ${sub} yet.</p>`;
+            else {
+                list.innerHTML = subFiles.map(f => `
+                    <button onclick="launchSavedFile('${f.id}', '${f.name}')" class="p-6 bg-slate-800 rounded-2xl border border-slate-700 hover:border-blue-500 hover:bg-slate-700 transition text-left group">
+                        <div class="flex items-center gap-3 mb-2"><i data-lucide="file-text" class="text-blue-400"></i><span class="font-bold text-white group-hover:text-blue-300 truncate">${f.name}</span></div>
+                        <div class="text-xs text-slate-400 flex justify-between"><span>${f.count} Questions</span><span>${f.date.split(',')[0]}</span></div>
+                    </button>`).join('');
+                lucide.createIcons();
+            }
+        }
+
+        async function launchSavedFile(fileId, fileName) {
+            const allQ = await getStoreAll('questions');
+            state.rawQ = allQ.filter(q => q.fileId === fileId);
+            state.activeFileId = fileId; state.fileTitle = fileName; state.isOffTheRecord = false; state.revBankType = null;
+            document.getElementById('strat-file-name').innerText = `${fileName} (${state.rawQ.length} Qs)`;
+            navigate(3);
         }
 
         function switchTab(t) {
@@ -381,57 +374,25 @@
         }
 
         // --- DASHBOARD RENDERING ---
-        async function renderDashboard() {
-            const hist = await getStoreAll('history');
-            const qs = await getStoreAll('questions');
-            const ms = await getStoreAll('mistakes');
-            const fs = await getStoreAll('flags');
-
-            // 1. Subject Blocks (with Strength Meters)
-            document.getElementById('subject-blocks').innerHTML = SUBJECTS.map(s => {
-                const sHist = hist.filter(h => h.subject.includes(s));
-                const avg = sHist.length ? Math.round(sHist.reduce((a,b)=>a+(b.score/b.total),0)/sHist.length * 100) : 0;
-                return `
-                <button onclick="handleSubjectClick('${s}')" class="glass-panel p-5 rounded-xl text-left hover:border-blue-500 transition group">
-                    <p class="font-bold text-slate-200 group-hover:text-blue-400 truncate mb-3">${s}</p>
-                    <div class="w-full bg-slate-800 h-1.5 rounded-full"><div class="bg-blue-500 h-1.5 rounded-full" style="width: ${avg}%"></div></div>
-                    <p class="text-[10px] text-slate-500 mt-1 text-right">${sHist.length ? avg+'% Avg' : 'No Data'}</p>
-                </button>`;
-            }).join('');
-
-            // 2. Revision Banks
-            const renderBankGrid = (data, elId, type) => {
-                document.getElementById(elId).innerHTML = [...SUBJECTS, 'Random All'].map(s => {
-                    const count = s === 'Random All' ? data.length : data.filter(q => q.category3 === s).length;
-                    return `<button onclick="openFilterPage({bank: '${type}', subject: '${s}'})" class="p-2 text-xs text-left bg-slate-800/50 rounded border border-slate-700 ${count>0?'text-slate-300 hover:border-blue-500 transition':'text-slate-600 opacity-50'}" ${count===0?'disabled':''}>${s} (${count})</button>`;
+        async function renderBanks() {
+            const mistakes = await getStoreAll('mistakes'); const flags = await getStoreAll('flags');
+            const renderObj = (dataArr, elId, typeStr) => {
+                document.getElementById(elId).innerHTML = SUBJECTS.map(s => {
+                    const count = s === "Random All" ? dataArr.length : dataArr.filter(q => q.subject === s).length;
+                    return `<button onclick="openRevConfig('${typeStr}', '${s}')" class="p-2 text-sm bg-slate-800/50 rounded border border-slate-700 ${count>0?'text-white hover:border-blue-500 hover:bg-slate-700 transition shadow':'text-slate-600'}" ${count===0?'disabled':''}>${s === "Random All" ? "Mixed Bag" : s} (${count})</button>`;
                 }).join('');
             };
-            renderBankGrid(ms, 'mistake-subjects', 'mistakes');
-            renderBankGrid(fs, 'flagged-subjects', 'flags');
-
-            // 3. Categorical Blocks
-            const renderCatGrid = (arr, key, elId) => {
-                document.getElementById(elId).innerHTML = arr.map(c => {
-                    const cTotal = qs.filter(q => q[key] === c).length;
-                    return `<button onclick="openFilterPage({catKey: '${key}', catVal: '${c}'})" class="p-3 text-sm font-bold bg-slate-800 rounded-lg text-left border border-slate-700 hover:border-blue-500 transition">${c} <span class="float-right text-xs text-slate-500 font-normal">(${cTotal})</span></button>`;
-                }).join('');
-            };
-            renderCatGrid(['Direct/Normal', 'Scenario-Based', 'Multiple-Response', 'Calculated'], 'Category4', 'type-blocks');
-            renderCatGrid(['Easy', 'Medium', 'Hard'], 'difficulty', 'diff-blocks');
-
-            // 4. Setup History Filters (if not already set)
-            const histFilters = document.getElementById('history-filters');
-            if(!histFilters.innerHTML) {
-                 histFilters.innerHTML = [...SUBJECTS, 'Random All'].map(s => `<button onclick="loadHistoryForSub('${s}')" class="px-4 py-2 bg-slate-800 rounded-full text-xs font-bold hover:bg-slate-700 hover:text-white border border-slate-700 transition ${s==='Random All'?'text-blue-400':'text-slate-400'}">${s}</button>`).join('');
-                 loadHistoryForSub('Random All');
-            }
-
-            renderUploads();
+            renderObj(mistakes, 'mistake-subjects', 'mistakes'); renderObj(flags, 'flagged-subjects', 'flags');
         }
 
-        async function loadHistoryForSub(sub) {
+        async function renderHistory() {
             const hist = await getStoreAll('history');
-            const arr = hist.filter(x => x.subject.includes(sub) || (sub === 'Random All' && x.subject.includes(',')));
+            document.getElementById('history-filters').innerHTML = SUBJECTS.map(s => `<button onclick="loadHistoryList('${s}')" class="px-4 py-2 bg-slate-800 rounded-full text-xs font-bold hover:bg-slate-700 hover:text-white border border-slate-700 transition ${s==='Random All'?'text-blue-400':'text-slate-400'}">${s}</button>`).join('');
+        }
+
+        async function loadHistoryList(sub) {
+            const hist = await getStoreAll('history');
+            const arr = hist.filter(x => x.subject === sub);
             document.getElementById('history-list').innerHTML = arr.length ? arr.map(a => `
                 <div onclick="openAttemptConfig('${a.id}')" class="p-4 bg-slate-800 rounded-xl cursor-pointer hover:border-blue-500 border border-slate-700 flex justify-between items-center btn-hover group shadow-sm">
                     <div><p class="font-bold text-slate-200 group-hover:text-white">${a.file}</p><p class="text-xs text-slate-500 mt-1"><i data-lucide="clock" class="w-3 h-3 inline mr-1"></i>${a.date}</p></div>
@@ -440,223 +401,94 @@
             lucide.createIcons();
         }
 
-        // --- EXPORTS & FULL SYSTEM MIGRATION (RESTORED) ---
-        async function exportBanks(format) {
-            const m = await getStoreAll('mistakes'); const f = await getStoreAll('flags');
-            let combined = Array.from(new Map([...m, ...f].map(i => [i.uniqueId, i])).values());
-            if(!combined.length) return alert("Banks are empty.");
-            if(format === 'csv') downloadBlob(Papa.unparse(combined), 'text/csv', `CA_Banks_${Date.now()}.csv`);
-            else downloadBlob(JSON.stringify({ mistakes: m, flags: f }), 'application/json', `CA_Banks_Backup_${Date.now()}.json`);
-        }
-
-        function importBanks(e) {
-            const r = new FileReader();
-            r.onload = async ev => { try { 
-                const d = JSON.parse(ev.target.result); 
-                if(d.mistakes) { 
-                    await execStore('mistakes', 'readwrite', s => { d.mistakes.forEach(x => s.put(x)); return s.get('dummy'); });
-                    await execStore('flags', 'readwrite', s => { d.flags.forEach(x => s.put(x)); return s.get('dummy'); });
-                    renderDashboard(); alert("Banks Restored Successfully!"); 
-                } } catch { alert("Invalid JSON format."); } 
-            };
-            r.readAsText(e.target.files[0]);
-        }
-
-        async function exportFullSystem() {
-            const snapshot = { files: await getStoreAll('files'), questions: await getStoreAll('questions'), history: await getStoreAll('history'), mistakes: await getStoreAll('mistakes'), flags: await getStoreAll('flags') };
-            downloadBlob(JSON.stringify(snapshot), 'application/json', `CA_Master_FullSystem_${Date.now()}.json`);
-        }
-
-        function importFullSystem(e) {
-            if(!confirm('WARNING: This will completely overwrite ALL existing data, uploads, and history. Proceed?')) return;
-            const r = new FileReader();
-            r.onload = async ev => { try { 
-                const d = JSON.parse(ev.target.result); 
-                if(d.questions) { 
-                    await clearStore('files'); await clearStore('questions'); await clearStore('history'); await clearStore('mistakes'); await clearStore('flags');
-                    if(d.files) await execStore('files', 'readwrite', s => { d.files.forEach(x => s.put(x)); return s; });
-                    if(d.questions) await execStore('questions', 'readwrite', s => { d.questions.forEach(x => s.put(x)); return s; });
-                    if(d.history) await execStore('history', 'readwrite', s => { d.history.forEach(x => s.put(x)); return s; });
-                    if(d.mistakes) await execStore('mistakes', 'readwrite', s => { d.mistakes.forEach(x => s.put(x)); return s; });
-                    if(d.flags) await execStore('flags', 'readwrite', s => { d.flags.forEach(x => s.put(x)); return s; });
-                    renderDashboard(); alert("Full System Restored Successfully!"); 
-                } } catch(err) { alert("Invalid Backup File."); } 
-            };
-            r.readAsText(e.target.files[0]);
-        }
-
-        function downloadBlob(data, type, filename) { const a = document.createElement('a'); a.href = `data:${type};charset=utf-8,${encodeURIComponent(data)}`; a.download = filename; a.click(); }
-
-        // --- FILTER PAGE LOGIC ---
-        async function openFilterPage(config) {
-            state.filter = { source: 'all', qty: 'all', subjects: [...SUBJECTS], bank: null, catKey: null, catVal: null };
-            
-            document.getElementById('filter-source-block').classList.add('hidden');
-            document.getElementById('btn-filter-exam').classList.remove('hidden');
-
-            if (config.bank) {
-                state.filter.bank = config.bank;
-                state.filter.subjects = config.subject === 'Random All' ? [...SUBJECTS] : [config.subject];
-                document.getElementById('filter-title').innerText = `${config.bank.toUpperCase()} Review`;
-                document.getElementById('filter-subtitle').innerText = config.subject;
-                document.getElementById('btn-filter-exam').classList.add('hidden'); 
-            } 
-            else if (config.catKey) {
-                state.filter.catKey = config.catKey; state.filter.catVal = config.catVal;
-                document.getElementById('filter-title').innerText = config.catVal;
-                document.getElementById('filter-subtitle').innerText = "Customize your session";
-                
-                document.getElementById('filter-source-block').classList.remove('hidden');
-                setFilterSource('all');
-                const ms = await getStoreAll('mistakes');
-                const hasMistakes = ms.some(q => q[config.catKey] === config.catVal);
-                document.getElementById('btn-src-mistakes').disabled = !hasMistakes;
-            }
-            else if (config.isDashboardRandom) {
-                document.getElementById('filter-title').innerText = "Random All";
-                document.getElementById('filter-subtitle').innerText = "Global Mixed Bag";
-            }
-
-            setFilterQty('all');
-            renderFilterSubjects();
-            navigate('filter');
-        }
-
-        function setFilterSource(src) {
-            state.filter.source = src;
-            document.getElementById('btn-src-all').className = `p-3 rounded-lg font-bold transition ${src==='all'?'bg-blue-900/30 border-2 border-blue-500 text-white':'bg-slate-800 border-2 border-slate-700 text-slate-400'}`;
-            document.getElementById('btn-src-mistakes').className = `p-3 rounded-lg font-bold transition ${src==='mistakes'?'bg-blue-900/30 border-2 border-blue-500 text-white':'bg-slate-800 border-2 border-slate-700 text-slate-400 disabled:opacity-50'}`;
-        }
-
-        function setFilterQty(q) {
-            state.filter.qty = q;
-            [10, 30, 'all'].forEach(x => {
-                const btn = document.getElementById(`btn-qty-${x}`);
-                btn.className = `p-3 rounded-lg font-bold transition ${x===q ? 'bg-blue-900/30 border-2 border-blue-500 text-blue-400' : 'bg-slate-800 border-2 border-slate-700 text-white hover:border-slate-500'}`;
-            });
-        }
-
-        function renderFilterSubjects() {
-            document.getElementById('filter-subject-list').innerHTML = SUBJECTS.map(s => {
-                const isChecked = state.filter.subjects.includes(s);
-                return `<label class="flex items-center gap-3 p-3 bg-slate-800 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-700">
-                    <input type="checkbox" value="${s}" ${isChecked?'checked':''} onchange="toggleFilterSub(this)" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 bg-slate-700 border-slate-600">
-                    <span class="text-sm font-bold text-slate-300">${s}</span>
-                </label>`;
-            }).join('');
-        }
-
-        function toggleFilterSub(el) {
-            if(el.checked) state.filter.subjects.push(el.value);
-            else state.filter.subjects = state.filter.subjects.filter(s => s !== el.value);
-        }
-        function toggleAllSubjects() {
-            state.filter.subjects = state.filter.subjects.length === SUBJECTS.length ? [] : [...SUBJECTS];
-            renderFilterSubjects();
-        }
-
-        async function launchFilteredSession(mode) {
-            if(state.filter.subjects.length === 0) return alert("Select at least one subject.");
-            
-            const storeName = state.filter.bank || (state.filter.source === 'mistakes' ? 'mistakes' : 'questions');
-            let pool = await getStoreAll(storeName);
-
-            pool = pool.filter(q => state.filter.subjects.includes(q.category3));
-            if(state.filter.catKey) pool = pool.filter(q => q[state.filter.catKey] === state.filter.catVal);
-
-            if(pool.length === 0) return alert("No questions found matching these filters.");
-
-            if(state.filter.qty !== 'all') pool = pool.sort(() => 0.5 - Math.random()).slice(0, state.filter.qty);
-            else pool = pool.sort(() => 0.5 - Math.random());
-
-            state.rawQ = pool;
-            state.fileTitle = state.filter.bank ? `${state.filter.bank.toUpperCase()} REVIEW` : "Custom Session";
-            state.activeFileId = 'custom_session';
-            state.isOffTheRecord = storeName === 'mistakes' || state.filter.bank; 
-            state.revBankType = state.filter.bank || (state.filter.source === 'mistakes' ? 'mistakes' : null);
-            
-            startQuizEngine(mode);
-        }
-
-        // --- UPLOADS & FILE SYSTEM ---
-        async function handleSubjectClick(sub) {
-            state.filter.subjects = [sub];
-            document.getElementById('library-title').innerText = sub;
-            document.getElementById('upload-conf').classList.add('hidden');
+        async function renderUploads() {
             const files = await getStoreAll('files');
-            const subFiles = files.filter(f => f.subject === sub);
-            const list = document.getElementById('library-files-list');
-            list.innerHTML = subFiles.length ? subFiles.map(f => `
-                <button onclick="launchSavedFile('${f.id}', '${f.name}')" class="p-6 bg-slate-800 rounded-2xl border border-slate-700 hover:border-blue-500 transition text-left group">
-                    <p class="font-bold text-white group-hover:text-blue-300 truncate">${f.name}</p>
-                    <p class="text-xs text-slate-400 mt-2">${f.count} Qs • ${f.date.split(',')[0]}</p>
-                </button>`).join('') : `<p class="text-slate-500 py-4">No files uploaded for ${sub}.</p>`;
-            navigate('library');
+            const tbody = document.getElementById('uploads-tbody');
+            if (files.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Your library is empty.</td></tr>`;
+            else tbody.innerHTML = files.map(f => `
+                    <tr class="hover:bg-slate-800/50 transition border-b border-slate-700/50">
+                        <td class="p-4 text-slate-300">${f.date.split(',')[0]}</td><td class="p-4"><span class="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs border border-blue-800/50">${f.subject}</span></td>
+                        <td class="p-4 font-bold text-slate-200">${f.name}</td><td class="p-4 text-slate-400">${f.count} Qs</td>
+                        <td class="p-4 text-right">
+                            <button onclick="deleteFile('${f.id}')" class="text-slate-500 hover:text-red-500 p-2 rounded hover:bg-slate-800 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                            </button>
+                        </td>
+                    </tr>`).join('');
+            lucide.createIcons();
         }
 
-        function handleDrop(e) { e.preventDefault(); parseCSV(e.dataTransfer.files[0]); }
-        function handleFileSelect(e) { parseCSV(e.target.files[0]); }
-        function parseCSV(file) {
+        // --- FILE UPLOADS ---
+        function handleDrop(e) { e.preventDefault(); parseIncomingCSV(e.dataTransfer.files[0]); }
+        function handleFileSelect(e) { parseIncomingCSV(e.target.files[0]); }
+        function parseIncomingCSV(file) {
             if(!file || !file.name.endsWith('.csv')) return alert("CSV files only.");
             Papa.parse(file, { header: true, skipEmptyLines: true, complete: res => {
-                const valid = res.data.filter(r => r.question && r.correct_options && r.category3);
-                if(!valid.length) return alert("Invalid Schema. Must include 'question', 'correct_options', 'category3'.");
-                
+                const valid = res.data.filter(r => r.id && r.question && r.correct_option);
+                if(!valid.length) return alert("Invalid format. Ensure 'id', 'question', and 'correct_option' headers exist.");
                 const fileId = 'file_' + Date.now();
-                state.pendingUpload = {
-                    fileRecord: { id: fileId, subject: valid[0].category3, name: file.name, date: new Date().toLocaleString(), count: valid.length },
-                    questions: valid.map((q, i) => ({ ...q, uniqueId: `${fileId}_${i}`, fileId: fileId }))
+                state.pendingParsedData = {
+                    fileRecord: { id: fileId, subject: state.subject, name: file.name, date: new Date().toLocaleString(), count: valid.length },
+                    questions: valid.map((q, i) => ({ ...q, uniqueId: `${fileId}_${i}`, fileId: fileId, subject: state.subject }))
                 };
-                document.getElementById('file-name-display').innerText = `${file.name} (${valid.length} Qs mapped to ${valid[0].category3})`;
+                document.getElementById('file-name-display').innerText = `${file.name} (${valid.length} Questions)`;
                 document.getElementById('upload-conf').classList.remove('hidden');
             }});
         }
 
         async function processUploadToDB() {
-            if(!state.pendingUpload) return;
-            const { fileRecord, questions } = state.pendingUpload;
+            if(!state.pendingParsedData) return;
+            const { fileRecord, questions } = state.pendingParsedData;
             await putStore('files', fileRecord);
             await execStore('questions', 'readwrite', s => { questions.forEach(q => s.put(q)); return s.put(questions[0]); }); 
+            state.pendingParsedData = null;
             launchSavedFile(fileRecord.id, fileRecord.name);
         }
 
-        async function launchSavedFile(fileId, fileName) {
+        async function deleteFile(fileId) {
+            if(!confirm('Permanently delete this file? Mistakes & Flags tied to these questions will be kept safe.')) return;
+            await deleteStoreItem('files', fileId);
             const allQ = await getStoreAll('questions');
-            state.rawQ = allQ.filter(q => q.fileId === fileId);
-            state.activeFileId = fileId; state.fileTitle = fileName; state.isOffTheRecord = false; state.revBankType = null;
-            document.getElementById('strat-file-name').innerText = `${fileName} (${state.rawQ.length} Qs)`;
-            navigate('strategy');
-        }
-
-        async function renderUploads() {
-            const files = await getStoreAll('files');
-            document.getElementById('uploads-tbody').innerHTML = files.map(f => `
-                <tr class="border-b border-slate-700/50">
-                    <td class="p-3 text-slate-400">${f.date.split(',')[0]}</td>
-                    <td class="p-3"><span class="px-2 py-1 bg-slate-700 text-xs rounded">${f.subject}</span></td>
-                    <td class="p-3 font-bold text-slate-200">${f.name}</td>
-                    <td class="p-3 text-slate-400">${f.count}</td>
-                    <td class="p-3 text-right"><button onclick="deleteFile('${f.id}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
-                </tr>`).join('');
-        }
-
-        async function deleteFile(id) {
-            if(!confirm("Delete file and its questions? (Mistakes will be kept)")) return;
-            await deleteStoreItem('files', id);
-            const allQ = await getStoreAll('questions');
-            const qsToDelete = allQ.filter(q => q.fileId === id);
+            const qsToDelete = allQ.filter(q => q.fileId === fileId);
             await execStore('questions', 'readwrite', s => { qsToDelete.forEach(q => s.delete(q.uniqueId)); return s.get('dummy'); });
-            renderDashboard();
+            renderUploads();
         }
 
-        async function globalClear(target) {
-            if(target === 'history' && confirm('Clear ALL history?')) await clearStore('history');
-            if(target === 'uploads' && confirm('Clear ALL uploads?')) { await clearStore('files'); await clearStore('questions'); }
-            if(target === 'banks' && confirm('Clear ALL Mistakes & Flags?')) { await clearStore('mistakes'); await clearStore('flags'); }
-            renderDashboard();
+        // --- TARGETED REVISION (P5) ---
+        let revConfig = { type: null, subject: null, mode: 'practice' };
+        async function openRevConfig(typeStr, sub) {
+            revConfig = { type: typeStr, subject: sub, mode: 'practice' };
+            const bankData = await getStoreAll(typeStr);
+            const poolSize = sub === "Random All" ? bankData.length : bankData.filter(q => q.subject === sub).length;
+            document.getElementById('rev-title-main').innerText = `${typeStr==='mistakes'?'Weakness Check':'Flag Review'}: ${sub === 'Random All' ? 'Mixed Bag' : sub}`;
+            document.getElementById('rev-meta-main').innerText = `${poolSize} Questions Available in Bank`;
+            
+            const iconWrap = document.getElementById('rev-icon-bg'); const iconEl = document.getElementById('rev-icon');
+            if(typeStr === 'mistakes') { iconWrap.className = "mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-orange-500/20 text-orange-400"; iconEl.setAttribute('data-lucide', 'alert-triangle'); }
+            else { iconWrap.className = "mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-purple-500/20 text-purple-400"; iconEl.setAttribute('data-lucide', 'flag'); }
+            
+            setRevMode('practice'); navigate(5);
         }
 
-        // --- HISTORY REVIEW (RESTORED) ---
+        function setRevMode(mode) {
+            revConfig.mode = mode;
+            const btnP = document.getElementById('btn-rev-prac-full'); const btnW = document.getElementById('btn-rev-watch-full');
+            if(mode === 'practice') { btnP.classList.add('border-blue-500','bg-blue-900/30'); btnW.classList.remove('border-blue-500','bg-blue-900/30'); }
+            else { btnW.classList.add('border-blue-500','bg-blue-900/30'); btnP.classList.remove('border-blue-500','bg-blue-900/30'); }
+            document.getElementById('rev-qty-section').style.display = mode === 'practice' ? 'block' : 'none';
+            if (mode === 'watch') startRevision('all');
+        }
+
+        async function startRevision(qty) {
+            const bankData = await getStoreAll(revConfig.type);
+            let pool = revConfig.subject === "Random All" ? bankData : bankData.filter(q => q.subject === revConfig.subject);
+            if(qty !== 'all') pool = [...pool].sort(() => 0.5 - Math.random()).slice(0, qty);
+            state.subject = revConfig.subject; state.activeFileId = `${revConfig.type}_bank`; state.fileTitle = `${revConfig.type.toUpperCase()} BANK`;
+            state.isOffTheRecord = true; state.revBankType = revConfig.type; state.rawQ = pool;
+            startQuizEngine(revConfig.mode);
+        }
+
+        // --- HISTORY REVIEW (P6) ---
         async function openAttemptConfig(attId) {
             const hist = await getStoreAll('history'); const att = hist.find(x => x.id === attId);
             state.selAttemptId = attId; 
@@ -667,14 +499,13 @@
             const btnRM = document.getElementById('btn-att-rm'); const btnWM = document.getElementById('btn-att-wm');
             if(!att.missed || att.missed.length === 0) { btnRM.disabled = true; btnWM.disabled = true; btnRM.classList.add('opacity-50', 'cursor-not-allowed'); btnWM.classList.add('opacity-50', 'cursor-not-allowed'); }
             else { btnRM.disabled = false; btnWM.disabled = false; btnRM.classList.remove('opacity-50', 'cursor-not-allowed'); btnWM.classList.remove('opacity-50', 'cursor-not-allowed'); }
-            navigate('history-review');
+            navigate(6);
         }
 
-        async function relaunchHistory(action, forcedMode) {
+        async function relaunch(action, forcedMode) {
             const hist = await getStoreAll('history'); const att = hist.find(x => x.id === state.selAttemptId);
             if(!att) return;
-            state.filter.subjects = att.subject.split(',');
-            state.fileTitle = att.file; state.activeFileId = 'history_relaunch';
+            state.subject = att.subject; state.fileTitle = att.file; state.activeFileId = 'history_relaunch';
             state.isOffTheRecord = false; state.revBankType = null;
             state.rawQ = action.includes('mistakes') ? att.missed : att.raw;
             if(!state.rawQ || state.rawQ.length === 0) return alert("No mistakes found.");
@@ -682,31 +513,39 @@
             startQuizEngine(forcedMode);
         }
 
+        function relaunchFromRes(action) {
+            const mode = action.includes('watch') ? 'watch' : 'practice';
+            if (!state.isOffTheRecord) { relaunch(action, mode); } 
+            else {
+                if(action.includes('mistakes')) {
+                    if(!state.missedQ || state.missedQ.length === 0) return alert("No mistakes found.");
+                    state.rawQ = state.missedQ;
+                }
+                startQuizEngine(mode);
+            }
+        }
+
         // --- QUIZ ENGINE ---
         function startQuizEngine(mode) {
+            if(!state.rawQ || state.rawQ.length === 0) return alert("No questions found.");
             state.mode = mode; state.idx = 0; state.score = 0; state.timeSpent = 0; state.timeLeft = EXAM_TIME;
             
             state.actQ = state.rawQ.map(q => {
-                let opts = [{k:'A', t:q.option_a}, {k:'B', t:q.option_b}, {k:'C', t:q.option_c}, {k:'D', t:q.option_d}].filter(o => o.t);
-                let corArr = q.correct_options.toUpperCase().split(',').map(x=>x.trim());
-                let corTexts = opts.filter(o => corArr.includes(o.k)).map(o=>o.t);
-                
+                let opts = [{k:'A', t:q.option_a}, {k:'B', t:q.option_b}, {k:'C', t:q.option_c}, {k:'D', t:q.option_d}];
+                let corT = opts.find(o => o.k === q.correct_option?.trim().toUpperCase())?.t;
                 if(mode !== 'watch') opts.sort(() => 0.5 - Math.random());
-                const isMRQ = q.Category4 === 'Multiple-Response' || corTexts.length > 1;
-                
-                // If launching from history mistake review, preserve previous answers for watch mode
-                let previousUA = q.previousUserAnswers || [];
-                return {...q, opts, corTexts, isMRQ, answered: false, userAnswers: previousUA, timeTaken: 0};
+                return {...q, opts, corT, answered: false, userAnswer: null};
             });
+            if(mode !== 'watch') state.actQ.sort(() => 0.5 - Math.random());
             
             navigate('quiz');
-            document.getElementById('header-subtitle').innerText = state.fileTitle;
+            document.getElementById('header-subtitle').innerText = state.isOffTheRecord ? `${mode.toUpperCase()} (OFF RECORD)` : mode.toUpperCase();
             document.getElementById('header-score').innerText = `0 / ${state.actQ.length}`;
             
-            const btnEarly = document.getElementById('btn-early-submit');
-            if(mode === 'exam') { runTimer(true); btnEarly.classList.remove('hidden'); }
-            else { runTimer(false); btnEarly.classList.add('hidden'); }
-            
+            const timerLabel = document.getElementById('timer-label');
+            if(mode === 'exam') { timerLabel.innerText = "Left"; runTimer(true); }
+            else if(mode === 'practice') { timerLabel.innerText = "Spent"; runTimer(false); }
+            else { document.getElementById('timer-container').classList.add('hidden'); }
             renderQ();
         }
 
@@ -726,119 +565,43 @@
             }, 1000);
         }
 
+        function setTopicChapterMeta(q) {
+            let metaHtml = '';
+            if (q.category1) metaHtml += `<span><span class="font-bold text-slate-300">Topic:</span> ${q.category1}</span>`;
+            if (q.category2) metaHtml += `<span><span class="font-bold text-slate-300">Chapter:</span> ${q.category2}</span>`;
+            document.getElementById('exp-meta-topic').innerHTML = metaHtml;
+        }
+
         async function renderQ() {
             const q = state.actQ[state.idx];
-            state.qStartTime = state.timeSpent; 
-            
             document.getElementById('progress-bar').style.width = `${((state.idx)/state.actQ.length)*100}%`;
             document.getElementById('q-counter').innerText = `Question ${state.idx + 1} of ${state.actQ.length}`;
-            document.getElementById('q-meta-tags').innerText = `${q.Category4 || 'Direct'} • ${q.difficulty || 'Unrated'}`;
             document.getElementById('q-text').innerText = q.question;
             
             const flags = await getStoreAll('flags');
-            document.getElementById('btn-flag').className = `p-2 rounded-lg transition ${flags.some(x => x.uniqueId === q.uniqueId) ? 'bg-purple-900 text-purple-400' : 'bg-slate-800 text-slate-400 hover:text-purple-400'}`;
+            const isFlagged = flags.some(x => x.uniqueId === q.uniqueId);
+            document.getElementById('btn-flag').className = `p-2 rounded-lg transition ${isFlagged ? 'bg-purple-900 text-purple-400' : 'bg-slate-800 text-slate-400 hover:text-purple-400'}`;
             
             const grid = document.getElementById('options-grid'); grid.innerHTML = '';
             q.opts.forEach((o, i) => {
                 const b = document.createElement('button');
-                b.className = "text-left p-5 rounded-xl border-2 border-slate-700 bg-slate-800 hover:bg-slate-700 font-medium flex items-center gap-4 opt-btn transition group";
-                b.innerHTML = `<span class="flex-shrink-0 w-8 h-8 rounded bg-slate-900 text-slate-400 flex items-center justify-center font-bold">${['A','B','C','D'][i]}</span> <span class="text-slate-200">${o.t}</span>`;
-                
-                if(state.mode === 'watch') {
-                    b.disabled = true;
-                    if(q.corTexts.includes(o.t)) b.classList.add('correct-ans');
-                    else if(q.userAnswers?.includes(o.t)) b.classList.add('wrong-ans');
-                } else {
-                    b.onclick = () => handleAnsClick(o, b, q);
-                }
+                b.className = "text-left p-5 rounded-xl border-2 border-slate-700 bg-slate-800 hover:bg-slate-700 font-medium flex items-center gap-4 opt-btn transition shadow-sm group";
+                b.innerHTML = `<span class="flex-shrink-0 w-8 h-8 rounded bg-slate-900 text-slate-400 flex items-center justify-center font-bold group-hover:text-blue-400 transition">${['A','B','C','D'][i]}</span> <span class="text-slate-200">${o.t}</span>`;
+                if(state.mode === 'watch') { b.disabled = true; if(o.t === q.corT) b.classList.add('correct-ans'); }
+                else { b.onclick = () => handleAns(o, b); }
                 grid.appendChild(b);
             });
             
             const expBox = document.getElementById('explanation-box');
-            const btnNext = document.getElementById('btn-next-q');
-            const btnMrq = document.getElementById('btn-check-mrq');
-            
-            btnNext.classList.toggle('hidden', state.mode !== 'watch');
-            btnNext.innerText = state.idx === state.actQ.length - 1 ? 'Finish Exam' : 'Next Question';
-            btnMrq.classList.add('hidden');
+            document.getElementById('btn-next-q').classList.toggle('hidden', state.mode !== 'watch');
+            document.getElementById('btn-next-q').innerText = state.idx === state.actQ.length - 1 ? 'Finish Exam' : 'Next Question';
             
             if(state.mode === 'watch') {
-                showExplanation(q, expBox);
-            } else { 
-                expBox.classList.add('hidden'); 
-                if(q.isMRQ) btnMrq.classList.remove('hidden');
-            }
-        }
-
-        function handleAnsClick(sel, btn, q) {
-            if(q.answered) return;
-            
-            if(q.isMRQ) {
-                const selIdx = q.userAnswers.indexOf(sel.t);
-                if(selIdx > -1) {
-                    q.userAnswers.splice(selIdx, 1);
-                    btn.classList.remove('selected-mrq');
-                } else {
-                    q.userAnswers.push(sel.t);
-                    btn.classList.add('selected-mrq');
-                }
-            } else {
-                q.userAnswers = [sel.t];
-                gradeQuestion(q);
-            }
-        }
-
-        function submitMRQ() {
-            const q = state.actQ[state.idx];
-            if(!q.userAnswers.length) return alert("Select at least one option.");
-            document.getElementById('btn-check-mrq').classList.add('hidden');
-            gradeQuestion(q);
-        }
-
-        async function gradeQuestion(q) {
-            q.answered = true;
-            q.timeTaken = state.timeSpent - state.qStartTime;
-
-            const isCor = q.userAnswers.length === q.corTexts.length && q.userAnswers.every(v => q.corTexts.includes(v));
-            
-            if(isCor) state.score++; 
-            else if(!state.isOffTheRecord) await putStore('mistakes', state.rawQ.find(x => x.uniqueId === q.uniqueId));
-            
-            document.getElementById('header-score').innerText = `${state.score} / ${state.actQ.length}`;
-            
-            const btns = document.querySelectorAll('.opt-btn');
-            btns.forEach(b => b.disabled = true);
-            
-            if(state.mode === 'practice') {
-                btns.forEach((b) => {
-                    const optText = b.querySelector('span:nth-child(2)').innerText;
-                    if(q.corTexts.includes(optText)) b.classList.add('correct-ans', 'border-green-500');
-                    else if(q.userAnswers.includes(optText)) b.classList.add('wrong-ans', 'border-red-500');
-                    b.classList.remove('selected-mrq');
-                });
-                showExplanation(q, document.getElementById('explanation-box'));
-            } else {
-                btns.forEach(b => { if(q.userAnswers.includes(b.querySelector('span:nth-child(2)').innerText)) b.classList.add('border-blue-500'); });
-            }
-            
-            document.getElementById('btn-next-q').classList.remove('hidden');
-        }
-
-        function showExplanation(q, expBox) {
-            document.getElementById('explanation-text').innerText = q.explanation || 'No logic provided.';
-            let metaHtml = '';
-            if(q.reference) metaHtml += `<span class="bg-slate-900 px-2 py-1 rounded mr-2">Ref: ${q.reference}</span>`;
-            if(q.tags) metaHtml += `<span class="bg-slate-900 px-2 py-1 rounded">Tags: ${q.tags}</span>`;
-            document.getElementById('exp-meta').innerHTML = metaHtml;
-            
-            const rmBtn = document.getElementById('btn-remove-bank');
-            if(state.revBankType) {
-                rmBtn.classList.remove('hidden'); rmBtn.innerHTML = `<i data-lucide="trash-2" class="w-4 h-4"></i> Remove from Bank`; rmBtn.disabled = false;
-                rmBtn.onclick = async () => { await deleteStoreItem(state.revBankType, q.uniqueId); rmBtn.innerText = "Removed!"; rmBtn.disabled = true; }
-            } else rmBtn.classList.add('hidden');
-            
-            expBox.classList.remove('hidden');
-            lucide.createIcons();
+                document.getElementById('explanation-text').innerText = q.explanation || 'No logic provided for this question.';
+                setTopicChapterMeta(q);
+                expBox.classList.remove('hidden');
+                configRemoveBtn(q);
+            } else { expBox.classList.add('hidden'); }
         }
 
         async function toggleFlag() {
@@ -846,8 +609,51 @@
             const btnFlag = document.getElementById('btn-flag');
             const flags = await getStoreAll('flags');
             const isFlagged = flags.some(x => x.uniqueId === q.uniqueId);
-            if(isFlagged) { await deleteStoreItem('flags', q.uniqueId); btnFlag.className = 'p-2 rounded-lg transition bg-slate-800 text-slate-400'; } 
-            else { await putStore('flags', state.rawQ.find(x => x.uniqueId === q.uniqueId)); btnFlag.className = 'p-2 rounded-lg transition bg-purple-900 text-purple-400'; }
+            
+            if(isFlagged) { 
+                await deleteStoreItem('flags', q.uniqueId); 
+                btnFlag.className = 'p-2 rounded-lg transition bg-slate-800 text-slate-400 hover:text-purple-400';
+            } else { 
+                await putStore('flags', state.rawQ.find(x => x.uniqueId === q.uniqueId)); 
+                btnFlag.className = 'p-2 rounded-lg transition bg-purple-900 text-purple-400';
+            }
+            renderBanks(); // Update dashboard silently in background
+        }
+
+        function configRemoveBtn(q) {
+            const btn = document.getElementById('btn-remove-bank');
+            if(state.revBankType) {
+                btn.classList.remove('hidden'); btn.innerHTML = `<i data-lucide="trash-2" class="w-4 h-4"></i> Remove from Bank`; btn.disabled = false;
+                btn.onclick = async () => { 
+                    await deleteStoreItem(state.revBankType, q.uniqueId);
+                    btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Removed!`; btn.disabled = true; lucide.createIcons();
+                }
+                lucide.createIcons();
+            } else { btn.classList.add('hidden'); }
+        }
+
+        async function handleAns(sel, btn) {
+            const q = state.actQ[state.idx]; if(q.answered) return; 
+            q.answered = true; q.userAnswer = sel.t;
+
+            const isCor = sel.t === q.corT;
+            if(isCor) state.score++; else if(!state.isOffTheRecord) await putStore('mistakes', state.rawQ.find(x => x.uniqueId === q.uniqueId));
+            
+            document.getElementById('header-score').innerText = `${state.score} / ${state.actQ.length}`;
+            document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+            
+            if(state.mode === 'practice') {
+                if(isCor) btn.classList.add('correct-ans'); else {
+                    btn.classList.add('wrong-ans');
+                    document.querySelectorAll('.opt-btn').forEach((b, i) => { if(q.opts[i].t === q.corT) b.classList.add('correct-ans'); });
+                }
+                document.getElementById('explanation-text').innerText = q.explanation || 'No logic provided.';
+                setTopicChapterMeta(q);
+                document.getElementById('explanation-box').classList.remove('hidden');
+                configRemoveBtn(q);
+            } else { btn.classList.add('border-blue-500'); }
+            
+            document.getElementById('btn-next-q').classList.remove('hidden');
         }
 
         function nextQuestion() {
@@ -855,47 +661,82 @@
             if(state.idx < state.actQ.length - 1) { state.idx++; renderQ(); } else finishExam();
         }
 
-        function confirmEarlySubmit() {
-            const unans = state.actQ.filter(q => !q.answered).length;
-            document.getElementById('modal-submit-text').innerText = `You have ${unans} unanswered questions.`;
-            document.getElementById('modal-submit').classList.remove('hidden');
-        }
-
         async function finishExam() {
             clearInterval(state.timer);
-            document.getElementById('modal-submit').classList.add('hidden');
-            
-            state.actQ.forEach(q => { if(!q.answered) { q.answered=true; q.userAnswers=[]; q.timeTaken = state.timeSpent - state.qStartTime;} });
-            
-            const missed = state.actQ.filter(q => {
-                const isCor = q.userAnswers.length === q.corTexts.length && q.userAnswers.every(v => q.corTexts.includes(v));
-                if(!isCor && !state.isOffTheRecord) putStore('mistakes', state.rawQ.find(x => x.uniqueId === q.uniqueId)); 
-                return !isCor;
-            });
-            state.missedQ = missed.map(q => ({...state.rawQ.find(x => x.uniqueId === q.uniqueId), previousUserAnswers: q.userAnswers}));
+            const missed = state.actQ.filter(q => q.answered && q.userAnswer !== q.corT).map(q => state.rawQ.find(x => x.uniqueId === q.uniqueId));
+            state.missedQ = missed;
 
             if(!state.isOffTheRecord && (state.mode === 'practice' || state.mode === 'exam')) {
-                await putStore('history', { 
-                    id: 'att_'+Date.now(), date: new Date().toLocaleString(), subject: state.filter.subjects.join(','), 
-                    file: state.fileTitle, score: state.score, total: state.actQ.length, raw: state.rawQ, missed: state.missedQ 
-                });
+                const attId = 'att_'+Date.now();
+                await putStore('history', { id: attId, date: new Date().toLocaleString(), subject: state.subject, file: state.fileTitle, score: state.score, total: state.actQ.length, raw: state.rawQ, missed: missed });
+                state.selAttemptId = attId; 
             }
             
-            navigate('results');
+            navigate(4);
+            const acc = Math.round((state.score/state.actQ.length)*100)||0;
             document.getElementById('res-score').innerText = `${state.score}/${state.actQ.length}`;
-            document.getElementById('res-acc').innerText = `${Math.round((state.score/state.actQ.length)*100)||0}%`;
+            document.getElementById('res-acc').innerText = `${acc}%`;
             document.getElementById('res-time').innerText = `${Math.floor(state.timeSpent/60)}m ${state.timeSpent%60}s`;
             
             const btnM = document.getElementById('res-btn-mistake'); const btnWM = document.getElementById('res-btn-wmistake');
-            if(missed.length) { btnM.disabled=false; btnWM.disabled=false; btnM.classList.remove('opacity-50'); btnWM.classList.remove('opacity-50'); }
-            else { btnM.disabled=true; btnWM.disabled=true; btnM.classList.add('opacity-50'); btnWM.classList.add('opacity-50'); }
+            if(missed.length) { btnM.disabled=false; btnWM.disabled=false; btnM.classList.remove('opacity-50', 'cursor-not-allowed'); btnWM.classList.remove('opacity-50', 'cursor-not-allowed'); }
+            else { btnM.disabled=true; btnWM.disabled=true; btnM.classList.add('opacity-50', 'cursor-not-allowed'); btnWM.classList.add('opacity-50', 'cursor-not-allowed'); }
         }
 
-        function relaunchFromRes(action) {
-            const mode = action.includes('watch') ? 'watch' : 'practice';
-            if(action.includes('mistakes')) state.rawQ = state.missedQ; 
-            startQuizEngine(mode);
+        // --- EXPORTS / IMPORTS ---
+        async function globalClear(target) {
+            if(target === 'history' && confirm('Clear ALL history for ALL subjects?')) { await clearStore('history'); init(); } 
+            else if(target === 'banks' && confirm('Clear ALL Mistakes and Flags across ALL subjects?')) { await clearStore('mistakes'); await clearStore('flags'); init(); }
         }
+
+        async function exportBanks(format) {
+            const m = await getStoreAll('mistakes'); const f = await getStoreAll('flags');
+            let combined = Array.from(new Map([...m, ...f].map(i => [i.uniqueId, i])).values());
+            if(!combined.length) return alert("Banks are empty.");
+            
+            if(format === 'csv') downloadBlob(Papa.unparse(combined), 'text/csv', `CA_Banks_${Date.now()}.csv`);
+            else downloadBlob(JSON.stringify({ mistakes: m, flags: f }), 'application/json', `CA_Banks_Backup_${Date.now()}.json`);
+        }
+
+        function importBanks(e) {
+            const r = new FileReader();
+            r.onload = async ev => { try { 
+                const d = JSON.parse(ev.target.result); 
+                if(d.mistakes) { 
+                    await execStore('mistakes', 'readwrite', s => { d.mistakes.forEach(x => s.put(x)); return s.get('dummy'); });
+                    await execStore('flags', 'readwrite', s => { d.flags.forEach(x => s.put(x)); return s.get('dummy'); });
+                    init(); alert("Banks Restored!"); 
+                } } catch { alert("Invalid JSON."); } 
+            };
+            r.readAsText(e.target.files[0]);
+        }
+
+        async function exportFullSystem() {
+            const snapshot = { files: await getStoreAll('files'), questions: await getStoreAll('questions'), history: await getStoreAll('history'), mistakes: await getStoreAll('mistakes'), flags: await getStoreAll('flags') };
+            downloadBlob(JSON.stringify(snapshot), 'application/json', `CA_Master_FullSystem_${Date.now()}.json`);
+        }
+
+        function importFullSystem(e) {
+            if(!confirm('This will overwrite ALL existing data. Proceed?')) return;
+            const r = new FileReader();
+            r.onload = async ev => { try { 
+                const d = JSON.parse(ev.target.result); 
+                if(d.questions) { 
+                    await clearStore('files'); await clearStore('questions'); await clearStore('history'); await clearStore('mistakes'); await clearStore('flags');
+                    if(d.files) await execStore('files', 'readwrite', s => { d.files.forEach(x => s.put(x)); return s; });
+                    if(d.questions) await execStore('questions', 'readwrite', s => { d.questions.forEach(x => s.put(x)); return s; });
+                    if(d.history) await execStore('history', 'readwrite', s => { d.history.forEach(x => s.put(x)); return s; });
+                    if(d.mistakes) await execStore('mistakes', 'readwrite', s => { d.mistakes.forEach(x => s.put(x)); return s; });
+                    if(d.flags) await execStore('flags', 'readwrite', s => { d.flags.forEach(x => s.put(x)); return s; });
+                    init(); alert("Full System Restored Successfully!"); 
+                } } catch(err) { alert("Invalid Backup."); } 
+            };
+            r.readAsText(e.target.files[0]);
+        }
+
+        function downloadBlob(data, type, filename) { const a = document.createElement('a'); a.href = `data:${type};charset=utf-8,${encodeURIComponent(data)}`; a.download = filename; a.click(); }
+
+        window.onload = init;
     </script>
 </body>
 </html>
