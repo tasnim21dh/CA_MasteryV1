@@ -3,49 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CA Mastery Dashboard</title>
+    <title>CA Master</title>
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#0f172a">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        dark: '#0f172a', // slate-900
-                        glass: 'rgba(30, 41, 59, 0.7)', // slate-800 with opacity
-                    }
-                }
-            }
-        }
+        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { dark: '#0f172a', glass: 'rgba(30, 41, 59, 0.7)' } } } }
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
         .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         .btn-hover { transition: all 0.2s ease-in-out; }
-        .btn-hover:hover { transform: translateY(-2px); }
+        .btn-hover:hover:not(:disabled) { transform: translateY(-2px); }
         .correct-ans { background-color: rgba(22, 101, 52, 0.8) !important; border-color: #22c55e !important; }
         .wrong-ans { background-color: rgba(153, 27, 27, 0.8) !important; border-color: #ef4444 !important; }
+        .selected-mrq { border-color: #3b82f6 !important; background-color: rgba(59, 130, 246, 0.2) !important; }
         .timer-warning { color: #ef4444; animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        /* Hide scrollbar for cleaner look */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
+<body class="min-h-screen p-4 md:p-8 relative">
 
-    <!-- Sticky Header -->
     <header class="max-w-6xl mx-auto mb-8 flex justify-between items-center glass-panel p-4 rounded-2xl sticky top-4 z-50 shadow-lg hidden" id="app-header">
         <div class="flex items-center gap-4">
-            <button onclick="navigate(1)" class="p-2 hover:bg-slate-700 rounded-lg transition" title="Home">
-                <i data-lucide="home"></i>
-            </button>
+            <button onclick="navigate('dashboard')" class="p-2 hover:bg-slate-700 rounded-lg transition"><i data-lucide="home"></i></button>
             <div>
-                <h1 class="text-xl font-bold tracking-wider" id="header-title">CA Mastery</h1>
+                <h1 class="text-xl font-bold tracking-wider">CA Master</h1>
                 <p class="text-xs text-slate-400" id="header-subtitle">Dashboard</p>
             </div>
         </div>
@@ -55,742 +44,858 @@
                 <p class="text-lg font-bold text-blue-400" id="header-score">0</p>
             </div>
             <div class="text-center" id="timer-container">
-                <p class="text-xs text-slate-400 uppercase">Time</p>
-                <p class="text-xl font-mono font-bold text-slate-200" id="header-timer">60:00</p>
+                <p class="text-xs text-slate-400 uppercase" id="timer-label">Time</p>
+                <p class="text-xl font-mono font-bold text-slate-200" id="header-timer">00:00</p>
             </div>
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto space-y-8" id="main-content">
         
-        <!-- PAGE 1: HOME DASHBOARD -->
-        <div id="page-1" class="space-y-8 block">
-            <div class="text-center space-y-2 mb-12">
-                <h1 class="text-4xl font-bold text-white tracking-tight">CA Exam Analyzer</h1>
-                <p class="text-slate-400">Select a subject to upload a new practice file or review past attempts.</p>
+        <div id="page-dashboard" class="space-y-8 block">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-white">CA Master</h1>
+                <p class="text-slate-400 mt-2">Select a subject to access your library or target weak areas.</p>
             </div>
 
-            <!-- Subject Blocks -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="subject-blocks">
-                <!-- Injected via JS -->
-            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="subject-blocks"></div>
 
-            <!-- Retake Mistakes Global Button -->
-            <div class="glass-panel p-6 rounded-2xl text-center">
-                <h2 class="text-xl font-bold mb-4 flex items-center justify-center gap-2"><i data-lucide="refresh-cw" class="text-orange-400"></i> Targeted Revision</h2>
-                <button onclick="openRetakeMenu()" class="btn-hover w-full md:w-auto px-8 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold shadow-lg">
-                    Generate 30-Mistake Quiz
-                </button>
-                <div id="retake-submenu" class="hidden mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <!-- Injected via JS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-orange-500">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i data-lucide="alert-triangle" class="text-orange-400"></i> Mistake Q. Bank</h2>
+                    <div id="mistake-subjects" class="grid grid-cols-2 gap-2"></div>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-purple-500">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i data-lucide="flag" class="text-purple-400"></i> Flagged Q. Bank</h2>
+                    <div id="flagged-subjects" class="grid grid-cols-2 gap-2"></div>
                 </div>
             </div>
 
-            <!-- History & Session Management Tabs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-blue-500">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i data-lucide="layers" class="text-blue-400"></i> Study by Q. Type</h2>
+                    <div id="type-blocks" class="grid grid-cols-2 gap-2"></div>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-green-500">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i data-lucide="bar-chart" class="text-green-400"></i> Study by Difficulty</h2>
+                    <div id="diff-blocks" class="grid grid-cols-2 gap-2"></div>
+                </div>
+            </div>
+
             <div class="glass-panel rounded-2xl overflow-hidden">
                 <div class="flex border-b border-slate-700">
-                    <button onclick="switchTab('history')" id="tab-history" class="flex-1 py-4 font-bold bg-slate-800 text-blue-400">Subject History</button>
-                    <button onclick="switchTab('sessions')" id="tab-sessions" class="flex-1 py-4 font-bold text-slate-400 hover:bg-slate-800">Session Management</button>
+                    <button onclick="switchTab('history')" id="tab-history" class="flex-1 py-4 font-bold bg-slate-800 text-blue-400 border-b-2 border-blue-500">History</button>
+                    <button onclick="switchTab('uploads')" id="tab-uploads" class="flex-1 py-4 font-bold text-slate-400 hover:bg-slate-800 border-b-2 border-transparent">Upload Management</button>
                 </div>
-                
-                <!-- History by Subject -->
                 <div id="content-history" class="p-6 block">
-                    <div class="flex flex-wrap gap-2 mb-6" id="history-subject-filters">
-                        <!-- Injected via JS -->
-                    </div>
-                    <div id="history-attempts-list" class="space-y-3">
-                        <p class="text-slate-400 text-center py-4">Select a subject above to view attempts.</p>
-                    </div>
-                    <!-- Action Quadrant (Hidden until attempt selected) -->
-                    <div id="history-action-quadrant" class="hidden mt-6 p-6 bg-slate-800 rounded-xl border border-slate-600">
-                        <h3 class="text-lg font-bold mb-4 text-center">Attempt Actions</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <button onclick="relaunchAttempt('retake_all')" class="p-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold btn-hover">Retake Full Quiz</button>
-                            <button onclick="relaunchAttempt('retake_mistakes')" class="p-3 bg-orange-600 hover:bg-orange-700 rounded-lg font-semibold btn-hover">Retake Mistakes Only</button>
-                            <button onclick="relaunchAttempt('watch_all')" class="p-3 bg-slate-600 hover:bg-slate-500 rounded-lg font-semibold btn-hover">Watch Quiz (Read-Only)</button>
-                            <button onclick="relaunchAttempt('watch_mistakes')" class="p-3 bg-slate-700 hover:bg-slate-600 border border-slate-500 rounded-lg font-semibold btn-hover">Watch Mistakes Only</button>
-                        </div>
-                    </div>
+                    <div class="flex flex-wrap gap-2 mb-6" id="history-filters"></div>
+                    <div id="history-list" class="space-y-3"><p class="text-slate-400 text-center py-4">Select a subject to view past attempts.</p></div>
                 </div>
-
-                <!-- Session Management -->
-                <div id="content-sessions" class="p-6 hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-800 text-slate-400">
-                                <tr>
-                                    <th class="p-3 rounded-tl-lg">Date</th>
-                                    <th class="p-3">Subject</th>
-                                    <th class="p-3">File Name</th>
-                                    <th class="p-3">Score</th>
-                                    <th class="p-3 text-right rounded-tr-lg">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="session-table-body" class="divide-y divide-slate-700">
-                                <!-- Injected via JS -->
-                            </tbody>
-                        </table>
-                    </div>
+                <div id="content-uploads" class="p-6 hidden overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-800 text-slate-400">
+                            <tr>
+                                <th class="p-3 rounded-tl-lg">Date Added</th>
+                                <th class="p-3">Subject</th>
+                                <th class="p-3">File Name</th>
+                                <th class="p-3">Questions</th>
+                                <th class="p-3 text-right rounded-tr-lg">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="uploads-tbody" class="divide-y divide-slate-700"></tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- Data Portability -->
-            <div class="flex justify-between items-center text-sm text-slate-400 px-4">
-                <button onclick="exportData()" class="hover:text-blue-400 flex items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Backup Progress</button>
-                <label class="cursor-pointer hover:text-blue-400 flex items-center gap-2">
-                    <i data-lucide="upload" class="w-4 h-4"></i> Restore Data
-                    <input type="file" accept=".json" class="hidden" onchange="importData(event)">
-                </label>
-            </div>
-        </div>
-
-        <!-- PAGE 2: UPLOAD ZONE -->
-        <div id="page-2" class="hidden space-y-8 mt-12">
-            <div class="text-center">
-                <h2 class="text-3xl font-bold" id="upload-subject-title">Subject Name</h2>
-                <p class="text-slate-400 mt-2">Upload your CSV file to continue</p>
-            </div>
-            
-            <div id="drop-zone" class="glass-panel p-16 rounded-3xl border-2 border-dashed border-slate-500 text-center cursor-pointer hover:border-blue-400 transition" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
-                <input type="file" id="csv-upload" accept=".csv" class="hidden" onchange="handleFileSelect(event)">
-                <label for="csv-upload" class="cursor-pointer">
-                    <i data-lucide="file-spreadsheet" class="mx-auto w-16 h-16 text-slate-400 mb-4"></i>
-                    <p class="text-xl font-bold">Drag & Drop CSV here</p>
-                    <p class="text-slate-400 mt-2">or click to browse</p>
-                </label>
-            </div>
-
-            <div id="upload-confirmation" class="hidden glass-panel p-6 rounded-xl border border-green-500/30 bg-green-900/20 text-center">
-                <p class="text-green-400 font-bold text-lg" id="file-name-display">filename.csv</p>
-                <p class="text-slate-300 mt-1" id="file-count-display">0 questions detected</p>
-                <button onclick="navigate(3)" class="mt-6 px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-bold btn-hover w-full md:w-auto">Proceed to Setup</button>
-            </div>
-        </div>
-
-        <!-- PAGE 3: STRATEGY SELECTION -->
-        <div id="page-3" class="hidden space-y-8 mt-12">
-            <h2 class="text-3xl font-bold text-center">Select Strategy</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Practice Mode -->
-                <button onclick="startQuizEngine('practice')" class="glass-panel p-8 rounded-2xl text-left border-2 border-transparent hover:border-green-500 btn-hover group">
-                    <div class="bg-green-500/20 p-4 rounded-full w-fit mb-6 text-green-400 group-hover:bg-green-500 group-hover:text-white transition">
-                        <i data-lucide="book-open" class="w-8 h-8"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-2">Practice Mode</h3>
-                    <p class="text-slate-400">Zero pressure. Instant green/red feedback and logic explanations after every question.</p>
-                </button>
-                <!-- Exam Mode -->
-                <button onclick="startQuizEngine('exam')" class="glass-panel p-8 rounded-2xl text-left border-2 border-transparent hover:border-red-500 btn-hover group">
-                    <div class="bg-red-500/20 p-4 rounded-full w-fit mb-6 text-red-400 group-hover:bg-red-500 group-hover:text-white transition">
-                        <i data-lucide="timer" class="w-8 h-8"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-2">Exam Mode</h3>
-                    <p class="text-slate-400">Strict 1-hour countdown. No feedback until the end. Auto-submits when time expires.</p>
-                </button>
-            </div>
-        </div>
-
-        <!-- THE QUIZ ENGINE (Page 3.5) -->
-        <div id="quiz-engine" class="hidden space-y-6">
-            <!-- Progress Bar -->
-            <div class="w-full bg-slate-800 rounded-full h-2 mb-6">
-                <div class="bg-blue-500 h-2 rounded-full transition-all duration-300" id="progress-bar" style="width: 0%"></div>
-            </div>
-
-            <div class="glass-panel p-6 md:p-10 rounded-2xl">
-                <div class="flex justify-between items-start mb-6 border-b border-slate-700 pb-4">
-                    <span id="q-counter" class="text-sm font-bold text-slate-400 tracking-wider uppercase">Q 1 / 30</span>
-                    <span id="q-category" class="text-xs px-3 py-1 bg-slate-800 rounded-full text-blue-400">Category</span>
-                </div>
-
-                <h2 id="q-text" class="text-xl md:text-2xl font-semibold mb-8 leading-relaxed">Question text goes here?</h2>
-
-                <div id="options-grid" class="grid gap-4">
-                    <!-- Options injected here -->
-                </div>
-
-                <!-- Explanation Box -->
-                <div id="explanation-box" class="hidden mt-8 p-6 bg-slate-800 border-l-4 border-blue-500 rounded-r-xl">
-                    <h4 class="font-bold text-blue-400 mb-2 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4"></i> Logic & Reasoning</h4>
-                    <p id="explanation-text" class="text-slate-300 text-sm leading-relaxed"></p>
-                </div>
-
-                <!-- Controls -->
-                <div class="mt-8 flex justify-between items-center">
-                    <button id="btn-submit-exam" onclick="finishExamEarly()" class="hidden px-6 py-2 border border-red-500/50 text-red-400 rounded-lg hover:bg-red-900/30">Submit Exam Early</button>
-                    <div class="flex-1"></div> <!-- Spacer -->
-                    <button id="btn-next-q" onclick="handleNextClick()" class="hidden px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold btn-hover shadow-lg">Next Question</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- PAGE 4: POST-EXAM ANALYTICS -->
-        <div id="page-4" class="hidden space-y-8">
-            <div class="glass-panel p-10 rounded-3xl text-center relative overflow-hidden">
-                <div id="confetti" class="absolute inset-0 pointer-events-none hidden"></div>
-                <h2 class="text-3xl font-bold mb-2">Exam Complete</h2>
-                <p class="text-slate-400 mb-8" id="result-meta">Subject • File • Mode</p>
+            <div class="glass-panel p-6 rounded-2xl border-t border-slate-700 relative">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-slate-300"><i data-lucide="settings" class="w-5 h-5"></i> Master Options</h2>
                 
-                <div class="flex justify-center gap-8 md:gap-16 mb-8">
-                    <div>
-                        <p class="text-5xl font-bold text-blue-400" id="result-score">0/0</p>
-                        <p class="text-sm text-slate-400 mt-2 uppercase">Score</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-2">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Data Clearing</p>
+                        <button onclick="globalClear('history')" class="w-full p-2 bg-slate-800 hover:bg-red-900/50 text-red-400 text-sm rounded border border-slate-700 transition flex items-center justify-between">Clear All History <i data-lucide="trash" class="w-4 h-4"></i></button>
+                        <button onclick="globalClear('uploads')" class="w-full p-2 bg-slate-800 hover:bg-red-900/50 text-red-400 text-sm rounded border border-slate-700 transition flex items-center justify-between">Clear All Uploads (Keep Banks) <i data-lucide="trash" class="w-4 h-4"></i></button>
+                        <button onclick="globalClear('banks')" class="w-full p-2 bg-slate-800 hover:bg-red-900/50 text-red-400 text-sm rounded border border-slate-700 transition flex items-center justify-between">Clear Revision Banks <i data-lucide="trash" class="w-4 h-4"></i></button>
                     </div>
-                    <div>
-                        <p class="text-5xl font-bold text-green-400" id="result-accuracy">0%</p>
-                        <p class="text-sm text-slate-400 mt-2 uppercase">Accuracy</p>
+                    
+                    <div class="space-y-2 border-t md:border-t-0 md:border-l border-slate-700 pt-4 md:pt-0 md:pl-6">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Revision Banks (Flags/Mistakes)</p>
+                        <button onclick="exportBanks('csv')" class="w-full p-2 bg-slate-800 hover:bg-slate-700 text-orange-400 text-sm rounded border border-slate-700 transition flex items-center justify-between">Export Banks (CSV) <i data-lucide="file-spreadsheet" class="w-4 h-4"></i></button>
+                        <button onclick="exportBanks('json')" class="w-full p-2 bg-slate-800 hover:bg-slate-700 text-blue-400 text-sm rounded border border-slate-700 transition flex items-center justify-between">Export Banks (JSON) <i data-lucide="download" class="w-4 h-4"></i></button>
+                        <label class="w-full p-2 bg-slate-800 hover:bg-slate-700 text-green-400 text-sm rounded border border-slate-700 transition flex items-center justify-between cursor-pointer">Import Banks (JSON) <i data-lucide="upload" class="w-4 h-4"></i><input type="file" accept=".json" class="hidden" onchange="importBanks(event)"></label>
                     </div>
-                    <div>
-                        <p class="text-5xl font-bold text-purple-400" id="result-time">0m</p>
-                        <p class="text-sm text-slate-400 mt-2 uppercase">Time Taken</p>
+
+                    <div class="space-y-2 border-t md:border-t-0 md:border-l border-slate-700 pt-4 md:pt-0 md:pl-6">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Full System Migration</p>
+                        <button onclick="exportFullSystem()" class="w-full p-2 bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 text-sm font-bold rounded border border-blue-500/50 transition flex items-center justify-between">Backup Progress <i data-lucide="hard-drive-download" class="w-4 h-4"></i></button>
+                        <label class="w-full p-2 bg-green-600/20 hover:bg-green-600/40 text-green-400 text-sm font-bold rounded border border-green-500/50 transition flex items-center justify-between cursor-pointer">Restore Progress <i data-lucide="hard-drive-upload" class="w-4 h-4"></i><input type="file" accept=".json" class="hidden" onchange="importFullSystem(event)"></label>
                     </div>
+                </div>
+                <div class="mt-6 border-t border-slate-800 pt-4">
+                    <p id="sw-status" class="text-xs text-center font-mono text-slate-500 flex items-center justify-center gap-2"></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-library" class="hidden space-y-8 block">
+            <button onclick="navigate('dashboard')" class="text-slate-400 hover:text-white flex items-center gap-2 mb-4"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold text-white" id="library-title">Subject Library</h2>
+            </div>
+            <div class="glass-panel p-10 rounded-3xl border-2 border-dashed border-slate-500 cursor-pointer hover:border-blue-500 text-center group" ondrop="handleDrop(event)" ondragover="event.preventDefault()">
+                <input type="file" id="csv-upload" accept=".csv" class="hidden" onchange="handleFileSelect(event)">
+                <label for="csv-upload" class="cursor-pointer block">
+                    <i data-lucide="file-up" class="mx-auto w-16 h-16 text-slate-500 group-hover:text-blue-400 mb-4"></i>
+                    <p class="text-xl font-bold text-slate-300">Drop CSV file here</p>
+                    <p class="text-slate-500 text-sm mt-2">Required Headers: question, option_a, option_b, option_c, option_d, correct_options, category3</p>
+                </label>
+            </div>
+            <div id="upload-conf" class="hidden glass-panel p-6 rounded-xl border border-green-500 bg-green-900/20 text-center">
+                <p class="text-green-400 font-bold" id="file-name-display"></p>
+                <button onclick="processUploadToDB()" class="mt-4 px-8 py-3 bg-blue-600 rounded-xl text-white font-bold">Save & Setup Exam</button>
+            </div>
+            <div class="mt-12">
+                <h3 class="text-xl font-bold mb-4 text-slate-300">Saved Files</h3>
+                <div id="library-files-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </div>
+
+        <div id="page-filter" class="hidden space-y-8 block max-w-3xl mx-auto">
+            <button onclick="navigate('dashboard')" class="text-slate-400 hover:text-white flex items-center gap-2 mb-4"><i data-lucide="arrow-left" class="w-4 h-4"></i> Cancel</button>
+            
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-white" id="filter-title">Session Setup</h2>
+                <p class="text-slate-400 mt-2" id="filter-subtitle"></p>
+            </div>
+
+            <div id="filter-source-block" class="hidden glass-panel p-6 rounded-xl mb-6">
+                <h4 class="font-bold text-slate-300 mb-4 text-sm uppercase tracking-wider">1. Select Source</h4>
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="btn-src-all" onclick="setFilterSource('all')" class="p-3 bg-blue-900/30 border-2 border-blue-500 rounded-lg text-white font-bold transition">All Questions</button>
+                    <button id="btn-src-mistakes" onclick="setFilterSource('mistakes')" class="p-3 bg-slate-800 border-2 border-slate-700 rounded-lg text-slate-400 font-bold hover:border-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition">Mistakes Only</button>
                 </div>
             </div>
 
-            <!-- Action Quadrant -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button onclick="relaunchFromResults('retake_all')" class="glass-panel p-6 rounded-xl hover:border-blue-500 text-left btn-hover flex items-center gap-4">
-                    <div class="bg-blue-500/20 p-3 rounded-lg text-blue-400"><i data-lucide="rotate-ccw"></i></div>
-                    <div><p class="font-bold text-lg">Retake Quiz</p><p class="text-sm text-slate-400">Restart the same file</p></div>
+            <div class="glass-panel p-6 rounded-xl mb-6">
+                <h4 class="font-bold text-slate-300 mb-4 text-sm uppercase tracking-wider">Quantity</h4>
+                <div class="grid grid-cols-3 gap-4">
+                    <button onclick="setFilterQty(10)" id="btn-qty-10" class="p-3 bg-slate-800 border-2 border-slate-700 rounded-lg text-white font-bold transition">10 Qs</button>
+                    <button onclick="setFilterQty(30)" id="btn-qty-30" class="p-3 bg-slate-800 border-2 border-slate-700 rounded-lg text-white font-bold transition">30 Qs</button>
+                    <button onclick="setFilterQty('all')" id="btn-qty-all" class="p-3 bg-blue-900/30 border-2 border-blue-500 rounded-lg text-blue-400 font-bold transition">All</button>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-bold text-slate-300 text-sm uppercase tracking-wider">Subjects Included</h4>
+                    <button onclick="toggleAllSubjects()" class="text-xs text-blue-400 hover:text-blue-300">Toggle All</button>
+                </div>
+                <div id="filter-subject-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+            </div>
+
+            <div class="flex gap-4 pt-4">
+                <button onclick="launchFilteredSession('practice')" class="flex-1 p-4 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold shadow-lg transition">Start Practice Mode</button>
+                <button onclick="launchFilteredSession('exam')" id="btn-filter-exam" class="flex-1 p-4 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold shadow-lg transition">Start Exam Mode</button>
+            </div>
+        </div>
+
+        <div id="page-strategy" class="hidden space-y-8 mt-12">
+            <button onclick="navigate('library')" class="text-slate-400 hover:text-white flex items-center gap-2 mb-4"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Library</button>
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-white">Select Strategy</h2>
+                <p class="text-slate-400 mt-2" id="strat-file-name">File Name</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <button onclick="startQuizEngine('practice')" class="glass-panel p-8 rounded-2xl text-left border-2 border-transparent hover:border-green-500 btn-hover group">
+                    <div class="bg-green-500/20 p-4 rounded-full w-fit mb-6 text-green-400"><i data-lucide="book-open"></i></div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Practice Mode</h3>
+                    <p class="text-slate-400">Instant feedback, explanations, no pressure.</p>
                 </button>
-                <button onclick="relaunchFromResults('retake_mistakes')" id="btn-res-mistakes" class="glass-panel p-6 rounded-xl hover:border-orange-500 text-left btn-hover flex items-center gap-4">
-                    <div class="bg-orange-500/20 p-3 rounded-lg text-orange-400"><i data-lucide="target"></i></div>
-                    <div><p class="font-bold text-lg">Retake Mistakes Only</p><p class="text-sm text-slate-400">Fresh quiz with missed questions</p></div>
-                </button>
-                <button onclick="relaunchFromResults('watch_all')" class="glass-panel p-6 rounded-xl hover:border-slate-400 text-left btn-hover flex items-center gap-4">
-                    <div class="bg-slate-500/20 p-3 rounded-lg text-slate-300"><i data-lucide="eye"></i></div>
-                    <div><p class="font-bold text-lg">Watch Quiz</p><p class="text-sm text-slate-400">Read-only mode, review everything</p></div>
-                </button>
-                <button onclick="relaunchFromResults('watch_mistakes')" id="btn-res-watch-mistakes" class="glass-panel p-6 rounded-xl hover:border-slate-400 text-left btn-hover flex items-center gap-4">
-                    <div class="bg-slate-500/20 p-3 rounded-lg text-slate-300"><i data-lucide="book-open-check"></i></div>
-                    <div><p class="font-bold text-lg">Watch Mistakes</p><p class="text-sm text-slate-400">Read-only mode, logic expanded</p></div>
+                <button onclick="startQuizEngine('exam')" class="glass-panel p-8 rounded-2xl text-left border-2 border-transparent hover:border-red-500 btn-hover group">
+                    <div class="bg-red-500/20 p-4 rounded-full w-fit mb-6 text-red-400"><i data-lucide="timer"></i></div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Exam Mode</h3>
+                    <p class="text-slate-400">1-hour strict countdown, hidden feedback.</p>
                 </button>
             </div>
-            
-            <div class="text-center mt-8">
-                <button onclick="navigate(1)" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold transition">Return to Dashboard</button>
+        </div>
+
+        <div id="page-quiz" class="hidden space-y-6 max-w-4xl mx-auto">
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div id="progress-bar" class="bg-blue-500 h-2 transition-all"></div></div>
+            <div class="glass-panel p-6 md:p-10 rounded-2xl relative">
+                <div class="flex justify-between mb-6 pb-4 border-b border-slate-700 items-center">
+                    <div>
+                        <span id="q-counter" class="text-sm font-bold text-slate-400 uppercase tracking-widest"></span>
+                        <span id="q-meta-tags" class="ml-3 text-xs text-slate-500 hidden md:inline"></span>
+                    </div>
+                    <button onclick="toggleFlag()" id="btn-flag" class="p-2 bg-slate-800 rounded-lg text-slate-400 hover:text-purple-400 transition" title="Flag Question"><i data-lucide="flag"></i></button>
+                </div>
+                
+                <h2 id="q-text" class="text-xl md:text-2xl font-semibold mb-8 leading-relaxed text-white"></h2>
+                
+                <div id="options-grid" class="grid gap-4"></div>
+                
+                <div id="explanation-box" class="hidden mt-8 p-6 bg-slate-800/80 border-l-4 border-blue-500 rounded-r-xl">
+                    <h4 class="font-bold text-blue-400 mb-2 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4"></i> Explanation</h4>
+                    <p id="explanation-text" class="text-slate-300 text-sm mb-4 leading-relaxed"></p>
+                    <div id="exp-meta" class="text-xs text-slate-500 mb-4"></div>
+                    <button id="btn-remove-bank" class="hidden px-4 py-2 bg-slate-700/50 text-red-400 text-xs font-bold rounded hover:bg-slate-700 flex items-center gap-2"></button>
+                </div>
+                
+                <div class="mt-8 flex justify-between items-center">
+                    <button onclick="confirmEarlySubmit()" id="btn-early-submit" class="text-sm text-slate-500 hover:text-white hidden">Submit Exam Early</button>
+                    <div class="flex-1 flex justify-end gap-3">
+                        <button id="btn-check-mrq" onclick="submitMRQ()" class="hidden px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold shadow-lg transition">Check Answer</button>
+                        <button id="btn-next-q" onclick="nextQuestion()" class="hidden px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg transition">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-results" class="hidden space-y-8 text-center max-w-4xl mx-auto">
+            <div class="glass-panel p-10 rounded-3xl">
+                <h2 class="text-3xl font-bold mb-8 text-white">Exam Complete</h2>
+                <div class="flex justify-center gap-8 md:gap-16 mb-8 border-b border-slate-700 pb-8">
+                    <div><p class="text-5xl font-bold text-blue-400" id="res-score">0</p><p class="text-slate-400 text-xs uppercase mt-3">Score</p></div>
+                    <div><p class="text-5xl font-bold text-green-400" id="res-acc">0%</p><p class="text-slate-400 text-xs uppercase mt-3">Accuracy</p></div>
+                    <div><p class="text-5xl font-bold text-purple-400" id="res-time">0m</p><p class="text-slate-400 text-xs uppercase mt-3">Time</p></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="relaunchFromRes('retake_all')" class="p-4 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold text-white transition">Retake Full</button>
+                    <button onclick="relaunchFromRes('retake_mistakes')" id="res-btn-mistake" class="p-4 bg-orange-600/20 hover:bg-orange-600/40 border border-orange-500/50 rounded-xl font-bold text-orange-400 transition">Retake Mistakes</button>
+                    <button onclick="relaunchFromRes('watch_all')" class="p-4 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold text-white transition">Watch Full</button>
+                    <button onclick="relaunchFromRes('watch_mistakes')" id="res-btn-wmistake" class="p-4 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl font-bold text-slate-300 transition">Watch Mistakes</button>
+                </div>
+            </div>
+            <button onclick="navigate('dashboard')" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold mt-4 text-white transition">Return to Dashboard</button>
+        </div>
+
+        <div id="page-history-review" class="hidden space-y-8 block">
+            <button onclick="navigate('dashboard')" class="text-slate-400 hover:text-white flex items-center gap-2 mb-4"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Dashboard</button>
+            <div class="glass-panel p-8 md:p-12 rounded-3xl text-center max-w-2xl mx-auto">
+                <h2 class="text-3xl font-bold mb-2 text-white">Review Attempt</h2>
+                <p class="text-slate-400 mb-8 text-lg" id="att-meta-main">File Name • Date</p>
+                <div class="flex justify-center gap-8 mb-10 pb-8 border-b border-slate-700">
+                    <div><p class="text-4xl font-bold text-blue-400" id="att-score-disp">0/0</p><p class="text-xs text-slate-500 uppercase mt-1">Score</p></div>
+                    <div><p class="text-4xl font-bold text-orange-400" id="att-miss-disp">0</p><p class="text-xs text-slate-500 uppercase mt-1">Mistakes</p></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="relaunchHistory('retake_all', 'exam')" class="p-5 bg-blue-600 rounded-xl font-bold btn-hover text-lg shadow-lg text-white">Retake Full</button>
+                    <button onclick="relaunchHistory('retake_mistakes', 'practice')" id="btn-att-rm" class="p-5 bg-orange-600 rounded-xl font-bold btn-hover text-lg shadow-lg text-white">Retake Mistakes</button>
+                    <button onclick="relaunchHistory('watch_all', 'watch')" class="p-5 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold btn-hover border border-slate-600 text-white">Watch Full</button>
+                    <button onclick="relaunchHistory('watch_mistakes', 'watch')" id="btn-att-wm" class="p-5 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold btn-hover border border-slate-600 text-slate-300">Watch Mistakes</button>
+                </div>
             </div>
         </div>
 
     </main>
 
+    <div id="modal-submit" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center">
+        <div class="bg-slate-800 p-8 rounded-2xl max-w-sm text-center border border-slate-700">
+            <h3 class="text-2xl font-bold text-white mb-2">Submit Exam?</h3>
+            <p class="text-slate-400 mb-6" id="modal-submit-text">You have X unanswered questions.</p>
+            <div class="flex gap-4">
+                <button onclick="document.getElementById('modal-submit').classList.add('hidden')" class="flex-1 p-3 bg-slate-700 rounded-xl text-white font-bold hover:bg-slate-600 transition">Cancel</button>
+                <button onclick="finishExam()" class="flex-1 p-3 bg-red-600 rounded-xl text-white font-bold hover:bg-red-500 transition">Submit</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- CONSTANTS & STATE ---
-        const SUBJECTS = ["Assurance", "Accounting", "Business, Technology & Finance", "Management Information", "Principles of Taxation", "Business Laws", "Information Technology"];
-        const EXAM_TIME = 3600; // 1 hour in seconds
+        // --- SW REGISTRATION (RESTORED) ---
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+            .then(reg => document.getElementById('sw-status').innerHTML = "🟢 <span class='text-green-500 font-bold'>System Online:</span> Offline Database Active")
+            .catch(err => document.getElementById('sw-status').innerHTML = "🔴 <span class='text-red-500 font-bold'>System Warning:</span> Service Worker Failed");
+        } else {
+            document.getElementById('sw-status').innerHTML = "🔴 <span class='text-red-500 font-bold'>System Error:</span> Browser does not support offline mode";
+        }
+
+        const SUBJECTS = ["Assurance", "Accounting", "Business, Technology and Finance", "Management Information", "Principles of Taxation", "Business Laws", "Information Technology"];
+        const EXAM_TIME = 3600;
+        let db; 
         
+        // State Management
         let state = {
-            activeSubject: null,
-            fileName: null,
-            rawQuestions: [],
-            activeQuestions: [], // The set currently being tested
-            missedQuestions: [], // Questions answered incorrectly this session
-            currentIndex: 0,
-            score: 0,
-            mode: null, // 'practice', 'exam', 'watch'
-            timerInterval: null,
-            timeRemaining: EXAM_TIME,
-            timeElapsed: 0,
-            selectedAttemptIdForAction: null // Used in History tab
+            activeFileId: null, fileTitle: null, mode: null, rawQ: [], actQ: [], idx: 0, 
+            score: 0, timer: null, timeLeft: EXAM_TIME, timeSpent: 0, qStartTime: 0,
+            isOffTheRecord: false, revBankType: null, missedQ: [], selAttemptId: null,
+            filter: { source: 'all', qty: 'all', subjects: [...SUBJECTS], type: null, diff: null }
         };
 
-        // --- DATABASE (Local Storage) ---
-        function getHistory() {
-            return JSON.parse(localStorage.getItem('ca_history')) || [];
+        // --- DATABASE ---
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('CAMasterDB', 2); 
+                request.onupgradeneeded = (e) => {
+                    const database = e.target.result;
+                    if(!database.objectStoreNames.contains('files')) database.createObjectStore('files', {keyPath: 'id'});
+                    if(!database.objectStoreNames.contains('questions')) {
+                        const qStore = database.createObjectStore('questions', {keyPath: 'uniqueId'});
+                        qStore.createIndex('fileId', 'fileId', {unique: false});
+                        qStore.createIndex('category3', 'category3', {unique: false}); 
+                    }
+                    if(!database.objectStoreNames.contains('history')) database.createObjectStore('history', {keyPath: 'id'});
+                    if(!database.objectStoreNames.contains('mistakes')) database.createObjectStore('mistakes', {keyPath: 'uniqueId'});
+                    if(!database.objectStoreNames.contains('flags')) database.createObjectStore('flags', {keyPath: 'uniqueId'});
+                };
+                request.onsuccess = (e) => { db = e.target.result; resolve(); };
+                request.onerror = (e) => reject(e);
+            });
         }
-        function saveHistory(attempt) {
-            const h = getHistory();
-            h.unshift(attempt); // Add to beginning
-            localStorage.setItem('ca_history', JSON.stringify(h));
+        function execStore(storeName, mode, callback) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, mode);
+                const req = callback(tx.objectStore(storeName));
+                tx.oncomplete = () => resolve(req.result);
+                tx.onerror = () => reject(tx.error);
+            });
         }
-        function deleteSession(id) {
-            if(confirm("Delete this session and its mistakes from history?")) {
-                const h = getHistory().filter(x => x.id !== id);
-                localStorage.setItem('ca_history', JSON.stringify(h));
-                renderSessionTable();
-                renderHistoryTab(); // refresh if active
-            }
-        }
+        function getStoreAll(store) { return execStore(store, 'readonly', s => s.getAll()); }
+        function putStore(store, item) { return execStore(store, 'readwrite', s => s.put(item)); }
+        function deleteStoreItem(store, id) { return execStore(store, 'readwrite', s => s.delete(id)); }
+        function clearStore(store) { return execStore(store, 'readwrite', s => s.clear()); }
 
-        // --- INITIALIZATION ---
-        function init() {
+        // --- INIT & ROUTING ---
+        window.onload = async () => {
+            await initDB();
+            await renderDashboard();
             lucide.createIcons();
-            renderSubjectBlocks();
-            renderHistoryTab();
-            renderSessionTable();
             document.getElementById('app-header').classList.remove('hidden');
-        }
+        };
 
-        // --- NAVIGATION ---
         function navigate(pageId) {
-            // Hide all pages
-            [1, 2, 3, 'quiz', 4].forEach(p => {
-                const el = document.getElementById(p === 'quiz' ? 'quiz-engine' : `page-${p}`);
-                if(el) el.classList.add('hidden');
+            ['dashboard', 'library', 'filter', 'strategy', 'quiz', 'results', 'history-review'].forEach(p => {
+                document.getElementById(`page-${p}`).classList.add('hidden');
             });
-            
-            clearInterval(state.timerInterval);
-            document.getElementById('quiz-stats').classList.add('hidden');
-            
-            if (pageId === 1) {
-                init();
-                document.getElementById('header-subtitle').innerText = "Dashboard";
-            } else if (pageId === 2) {
-                document.getElementById('upload-subject-title').innerText = state.activeSubject;
-                document.getElementById('upload-confirmation').classList.add('hidden');
-                document.getElementById('csv-upload').value = "";
-                document.getElementById('header-subtitle').innerText = "Upload Data";
-            } else if (pageId === 3) {
-                document.getElementById('header-subtitle').innerText = "Select Strategy";
-            }
-            
-            document.getElementById(pageId === 'quiz' ? 'quiz-engine' : `page-${pageId}`).classList.remove('hidden');
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+            document.getElementById('quiz-stats').classList.toggle('hidden', pageId !== 'quiz');
+            clearInterval(state.timer); lucide.createIcons();
+            if(pageId === 'dashboard') renderDashboard();
         }
 
-        // --- PAGE 1 LOGIC (Dashboard) ---
-        function renderSubjectBlocks() {
-            const container = document.getElementById('subject-blocks');
-            container.innerHTML = SUBJECTS.map(sub => `
-                <button onclick="selectSubject('${sub}')" class="glass-panel p-6 rounded-2xl text-center btn-hover hover:border-blue-500 hover:bg-slate-800 transition group flex flex-col items-center justify-center min-h-[120px]">
-                    <span class="font-bold text-slate-300 group-hover:text-blue-400">${sub}</span>
-                </button>
-            `).join('');
+        function switchTab(t) {
+            ['history', 'uploads'].forEach(x => {
+                document.getElementById(`content-${x}`).classList.toggle('hidden', x!==t);
+                document.getElementById(`tab-${x}`).className = `flex-1 py-4 font-bold ${x===t?'bg-slate-800 text-blue-400 border-b-2 border-blue-500':'text-slate-400 hover:bg-slate-800 border-b-2 border-transparent transition'}`;
+            });
         }
 
-        function selectSubject(sub) {
-            state.activeSubject = sub;
-            navigate(2);
-        }
+        // --- DASHBOARD RENDERING ---
+        async function renderDashboard() {
+            const hist = await getStoreAll('history');
+            const qs = await getStoreAll('questions');
+            const ms = await getStoreAll('mistakes');
+            const fs = await getStoreAll('flags');
 
-        function openRetakeMenu() {
-            const menu = document.getElementById('retake-submenu');
-            menu.classList.toggle('hidden');
-            if(!menu.classList.contains('hidden')) {
-                const h = getHistory();
-                menu.innerHTML = SUBJECTS.map(sub => {
-                    // Aggregate mistakes for this subject
-                    let mistakes = [];
-                    h.filter(x => x.subject === sub).forEach(attempt => {
-                        mistakes = mistakes.concat(attempt.missedQuestions || []);
-                    });
-                    // Deduplicate by ID
-                    const uniqueMistakes = Array.from(new Map(mistakes.map(item => [item.id, item])).values());
-                    const count = uniqueMistakes.length;
-                    
-                    return `
-                        <button onclick="generateRandomMistakeQuiz('${sub}')" class="p-3 text-sm rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 ${count > 0 ? 'text-orange-400' : 'text-slate-500 cursor-not-allowed'}" ${count === 0 ? 'disabled' : ''}>
-                            ${sub} (${count})
-                        </button>
-                    `;
+            // 1. Subject Blocks (with Strength Meters)
+            document.getElementById('subject-blocks').innerHTML = SUBJECTS.map(s => {
+                const sHist = hist.filter(h => h.subject.includes(s));
+                const avg = sHist.length ? Math.round(sHist.reduce((a,b)=>a+(b.score/b.total),0)/sHist.length * 100) : 0;
+                return `
+                <button onclick="handleSubjectClick('${s}')" class="glass-panel p-5 rounded-xl text-left hover:border-blue-500 transition group">
+                    <p class="font-bold text-slate-200 group-hover:text-blue-400 truncate mb-3">${s}</p>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full"><div class="bg-blue-500 h-1.5 rounded-full" style="width: ${avg}%"></div></div>
+                    <p class="text-[10px] text-slate-500 mt-1 text-right">${sHist.length ? avg+'% Avg' : 'No Data'}</p>
+                </button>`;
+            }).join('');
+
+            // 2. Revision Banks
+            const renderBankGrid = (data, elId, type) => {
+                document.getElementById(elId).innerHTML = [...SUBJECTS, 'Random All'].map(s => {
+                    const count = s === 'Random All' ? data.length : data.filter(q => q.category3 === s).length;
+                    return `<button onclick="openFilterPage({bank: '${type}', subject: '${s}'})" class="p-2 text-xs text-left bg-slate-800/50 rounded border border-slate-700 ${count>0?'text-slate-300 hover:border-blue-500 transition':'text-slate-600 opacity-50'}" ${count===0?'disabled':''}>${s} (${count})</button>`;
                 }).join('');
-            }
-        }
+            };
+            renderBankGrid(ms, 'mistake-subjects', 'mistakes');
+            renderBankGrid(fs, 'flagged-subjects', 'flags');
 
-        function generateRandomMistakeQuiz(sub) {
-            let mistakes = [];
-            getHistory().filter(x => x.subject === sub).forEach(attempt => {
-                mistakes = mistakes.concat(attempt.missedQuestions || []);
-            });
-            let uniqueMistakes = Array.from(new Map(mistakes.map(item => [item.id, item])).values());
-            
-            state.activeSubject = sub;
-            state.fileName = "Targeted_Mistakes_Bank";
-            // Shuffle and take top 30
-            state.rawQuestions = uniqueMistakes.sort(() => 0.5 - Math.random()).slice(0, 30);
-            navigate(3);
-        }
+            // 3. Categorical Blocks
+            const renderCatGrid = (arr, key, elId) => {
+                document.getElementById(elId).innerHTML = arr.map(c => {
+                    const cTotal = qs.filter(q => q[key] === c).length;
+                    return `<button onclick="openFilterPage({catKey: '${key}', catVal: '${c}'})" class="p-3 text-sm font-bold bg-slate-800 rounded-lg text-left border border-slate-700 hover:border-blue-500 transition">${c} <span class="float-right text-xs text-slate-500 font-normal">(${cTotal})</span></button>`;
+                }).join('');
+            };
+            renderCatGrid(['Direct/Normal', 'Scenario-Based', 'Multiple-Response', 'Calculated'], 'Category4', 'type-blocks');
+            renderCatGrid(['Easy', 'Medium', 'Hard'], 'difficulty', 'diff-blocks');
 
-        // Tabs
-        function switchTab(tab) {
-            document.getElementById('content-history').classList.add('hidden');
-            document.getElementById('content-sessions').classList.add('hidden');
-            document.getElementById('tab-history').className = "flex-1 py-4 font-bold text-slate-400 hover:bg-slate-800";
-            document.getElementById('tab-sessions').className = "flex-1 py-4 font-bold text-slate-400 hover:bg-slate-800";
-            
-            document.getElementById(`content-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).className = "flex-1 py-4 font-bold bg-slate-800 text-blue-400";
-        }
-
-        function renderHistoryTab() {
-            const filters = document.getElementById('history-subject-filters');
-            filters.innerHTML = SUBJECTS.map(sub => `
-                <button onclick="loadHistoryForSubject('${sub}')" class="px-3 py-1 rounded-full text-sm bg-slate-800 border border-slate-700 hover:border-blue-500">${sub}</button>
-            `).join('');
-            document.getElementById('history-action-quadrant').classList.add('hidden');
-            document.getElementById('history-attempts-list').innerHTML = `<p class="text-slate-400 text-center py-4">Select a subject above to view attempts.</p>`;
-        }
-
-        function loadHistoryForSubject(sub) {
-            const attempts = getHistory().filter(x => x.subject === sub);
-            const list = document.getElementById('history-attempts-list');
-            document.getElementById('history-action-quadrant').classList.add('hidden');
-            
-            if(attempts.length === 0) {
-                list.innerHTML = `<p class="text-slate-500 text-center py-4">No attempts recorded for ${sub} yet.</p>`;
-                return;
+            // 4. Setup History Filters (if not already set)
+            const histFilters = document.getElementById('history-filters');
+            if(!histFilters.innerHTML) {
+                 histFilters.innerHTML = [...SUBJECTS, 'Random All'].map(s => `<button onclick="loadHistoryForSub('${s}')" class="px-4 py-2 bg-slate-800 rounded-full text-xs font-bold hover:bg-slate-700 hover:text-white border border-slate-700 transition ${s==='Random All'?'text-blue-400':'text-slate-400'}">${s}</button>`).join('');
+                 loadHistoryForSub('Random All');
             }
 
-            list.innerHTML = attempts.map(a => `
-                <div onclick="selectAttemptForAction('${a.id}')" class="cursor-pointer p-4 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-700 transition flex justify-between items-center group">
-                    <div>
-                        <p class="font-bold text-slate-200">${a.fileName}</p>
-                        <p class="text-xs text-slate-400">${a.date} • Mode: ${a.mode || 'exam'}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-bold ${a.score/a.total >= 0.5 ? 'text-green-400' : 'text-orange-400'}">${a.score}/${a.total}</p>
-                        <p class="text-xs text-slate-500 group-hover:text-blue-400">Click for actions →</p>
-                    </div>
-                </div>
-            `).join('');
+            renderUploads();
         }
 
-        function selectAttemptForAction(id) {
-            state.selectedAttemptIdForAction = id;
-            document.getElementById('history-action-quadrant').classList.remove('hidden');
-            // Scroll to it
-            document.getElementById('history-action-quadrant').scrollIntoView({behavior: 'smooth', block: 'nearest'});
-        }
-
-        function relaunchAttempt(actionStr) {
-            const attempt = getHistory().find(x => x.id === state.selectedAttemptIdForAction);
-            if(!attempt) return;
-            
-            state.activeSubject = attempt.subject;
-            state.fileName = attempt.fileName;
-            
-            if(actionStr === 'retake_all') {
-                state.rawQuestions = attempt.allQuestions; // Assume we stored this
-                navigate(3);
-            } else if (actionStr === 'retake_mistakes') {
-                if(!attempt.missedQuestions || attempt.missedQuestions.length === 0) return alert("No mistakes in this attempt!");
-                state.rawQuestions = attempt.missedQuestions;
-                navigate(3);
-            } else if (actionStr === 'watch_all') {
-                state.rawQuestions = attempt.allQuestions;
-                startQuizEngine('watch', true);
-            } else if (actionStr === 'watch_mistakes') {
-                if(!attempt.missedQuestions || attempt.missedQuestions.length === 0) return alert("No mistakes in this attempt!");
-                state.rawQuestions = attempt.missedQuestions;
-                startQuizEngine('watch', true);
-            }
-        }
-
-        function renderSessionTable() {
-            const tbody = document.getElementById('session-table-body');
-            const h = getHistory();
-            if(h.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">No session data found.</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = h.map(a => `
-                <tr class="hover:bg-slate-800/50 transition">
-                    <td class="p-3 text-slate-300">${a.date.split(',')[0]}</td>
-                    <td class="p-3"><span class="px-2 py-1 bg-slate-800 rounded text-xs text-blue-300">${a.subject}</span></td>
-                    <td class="p-3 text-slate-300 truncate max-w-[150px]" title="${a.fileName}">${a.fileName}</td>
-                    <td class="p-3 font-bold ${a.score/a.total >= 0.5 ? 'text-green-400' : 'text-orange-400'}">${a.score}/${a.total}</td>
-                    <td class="p-3 text-right">
-                        <button onclick="deleteSession('${a.id}')" class="p-2 text-slate-500 hover:text-red-500 transition rounded-lg hover:bg-slate-800" title="Delete Session & Mistakes"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+        async function loadHistoryForSub(sub) {
+            const hist = await getStoreAll('history');
+            const arr = hist.filter(x => x.subject.includes(sub) || (sub === 'Random All' && x.subject.includes(',')));
+            document.getElementById('history-list').innerHTML = arr.length ? arr.map(a => `
+                <div onclick="openAttemptConfig('${a.id}')" class="p-4 bg-slate-800 rounded-xl cursor-pointer hover:border-blue-500 border border-slate-700 flex justify-between items-center btn-hover group shadow-sm">
+                    <div><p class="font-bold text-slate-200 group-hover:text-white">${a.file}</p><p class="text-xs text-slate-500 mt-1"><i data-lucide="clock" class="w-3 h-3 inline mr-1"></i>${a.date}</p></div>
+                    <div class="text-right"><p class="text-lg font-bold ${a.score/a.total >= 0.5 ? 'text-green-400' : 'text-orange-400'}">${a.score}/${a.total}</p><p class="text-[10px] text-slate-500 uppercase tracking-wide">Score</p></div>
+                </div>`).join('') : `<p class="text-slate-500 text-center py-8">No attempts recorded for ${sub}.</p>`;
             lucide.createIcons();
         }
 
-        // Data Backup/Restore
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('ca_history') || '[]');
-            const dlAnchorElem = document.createElement('a');
-            dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", `CA_Backup_${new Date().toISOString().split('T')[0]}.json`);
-            dlAnchorElem.click();
-        }
-        function importData(event) {
-            const file = event.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const json = JSON.parse(e.target.result);
-                    if(Array.isArray(json)) {
-                        localStorage.setItem('ca_history', JSON.stringify(json));
-                        alert("Data restored successfully!");
-                        init();
-                    } else throw new Error();
-                } catch(err) { alert("Invalid backup file."); }
-            }
-            reader.readAsText(file);
+        // --- EXPORTS & FULL SYSTEM MIGRATION (RESTORED) ---
+        async function exportBanks(format) {
+            const m = await getStoreAll('mistakes'); const f = await getStoreAll('flags');
+            let combined = Array.from(new Map([...m, ...f].map(i => [i.uniqueId, i])).values());
+            if(!combined.length) return alert("Banks are empty.");
+            if(format === 'csv') downloadBlob(Papa.unparse(combined), 'text/csv', `CA_Banks_${Date.now()}.csv`);
+            else downloadBlob(JSON.stringify({ mistakes: m, flags: f }), 'application/json', `CA_Banks_Backup_${Date.now()}.json`);
         }
 
-        // --- PAGE 2 LOGIC (Upload) ---
-        function handleDrop(e) {
-            e.preventDefault();
-            const file = e.dataTransfer.files[0];
-            if(file && file.name.endsWith('.csv')) processFile(file);
-            else alert("Please upload a .csv file");
+        function importBanks(e) {
+            const r = new FileReader();
+            r.onload = async ev => { try { 
+                const d = JSON.parse(ev.target.result); 
+                if(d.mistakes) { 
+                    await execStore('mistakes', 'readwrite', s => { d.mistakes.forEach(x => s.put(x)); return s.get('dummy'); });
+                    await execStore('flags', 'readwrite', s => { d.flags.forEach(x => s.put(x)); return s.get('dummy'); });
+                    renderDashboard(); alert("Banks Restored Successfully!"); 
+                } } catch { alert("Invalid JSON format."); } 
+            };
+            r.readAsText(e.target.files[0]);
         }
-        function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if(file) processFile(file);
+
+        async function exportFullSystem() {
+            const snapshot = { files: await getStoreAll('files'), questions: await getStoreAll('questions'), history: await getStoreAll('history'), mistakes: await getStoreAll('mistakes'), flags: await getStoreAll('flags') };
+            downloadBlob(JSON.stringify(snapshot), 'application/json', `CA_Master_FullSystem_${Date.now()}.json`);
         }
-        function processFile(file) {
-            Papa.parse(file, {
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    // Filter valid rows (must have question and options)
-                    const validData = results.data.filter(r => r.question && r.option_a && r.correct_option);
-                    if(validData.length === 0) return alert("Invalid CSV format. Check headers.");
-                    
-                    state.fileName = file.name;
-                    state.rawQuestions = validData;
-                    
-                    document.getElementById('file-name-display').innerText = file.name;
-                    document.getElementById('file-count-display').innerText = `${validData.length} questions ready`;
-                    document.getElementById('upload-confirmation').classList.remove('hidden');
-                }
+
+        function importFullSystem(e) {
+            if(!confirm('WARNING: This will completely overwrite ALL existing data, uploads, and history. Proceed?')) return;
+            const r = new FileReader();
+            r.onload = async ev => { try { 
+                const d = JSON.parse(ev.target.result); 
+                if(d.questions) { 
+                    await clearStore('files'); await clearStore('questions'); await clearStore('history'); await clearStore('mistakes'); await clearStore('flags');
+                    if(d.files) await execStore('files', 'readwrite', s => { d.files.forEach(x => s.put(x)); return s; });
+                    if(d.questions) await execStore('questions', 'readwrite', s => { d.questions.forEach(x => s.put(x)); return s; });
+                    if(d.history) await execStore('history', 'readwrite', s => { d.history.forEach(x => s.put(x)); return s; });
+                    if(d.mistakes) await execStore('mistakes', 'readwrite', s => { d.mistakes.forEach(x => s.put(x)); return s; });
+                    if(d.flags) await execStore('flags', 'readwrite', s => { d.flags.forEach(x => s.put(x)); return s; });
+                    renderDashboard(); alert("Full System Restored Successfully!"); 
+                } } catch(err) { alert("Invalid Backup File."); } 
+            };
+            r.readAsText(e.target.files[0]);
+        }
+
+        function downloadBlob(data, type, filename) { const a = document.createElement('a'); a.href = `data:${type};charset=utf-8,${encodeURIComponent(data)}`; a.download = filename; a.click(); }
+
+        // --- FILTER PAGE LOGIC ---
+        async function openFilterPage(config) {
+            state.filter = { source: 'all', qty: 'all', subjects: [...SUBJECTS], bank: null, catKey: null, catVal: null };
+            
+            document.getElementById('filter-source-block').classList.add('hidden');
+            document.getElementById('btn-filter-exam').classList.remove('hidden');
+
+            if (config.bank) {
+                state.filter.bank = config.bank;
+                state.filter.subjects = config.subject === 'Random All' ? [...SUBJECTS] : [config.subject];
+                document.getElementById('filter-title').innerText = `${config.bank.toUpperCase()} Review`;
+                document.getElementById('filter-subtitle').innerText = config.subject;
+                document.getElementById('btn-filter-exam').classList.add('hidden'); 
+            } 
+            else if (config.catKey) {
+                state.filter.catKey = config.catKey; state.filter.catVal = config.catVal;
+                document.getElementById('filter-title').innerText = config.catVal;
+                document.getElementById('filter-subtitle').innerText = "Customize your session";
+                
+                document.getElementById('filter-source-block').classList.remove('hidden');
+                setFilterSource('all');
+                const ms = await getStoreAll('mistakes');
+                const hasMistakes = ms.some(q => q[config.catKey] === config.catVal);
+                document.getElementById('btn-src-mistakes').disabled = !hasMistakes;
+            }
+            else if (config.isDashboardRandom) {
+                document.getElementById('filter-title').innerText = "Random All";
+                document.getElementById('filter-subtitle').innerText = "Global Mixed Bag";
+            }
+
+            setFilterQty('all');
+            renderFilterSubjects();
+            navigate('filter');
+        }
+
+        function setFilterSource(src) {
+            state.filter.source = src;
+            document.getElementById('btn-src-all').className = `p-3 rounded-lg font-bold transition ${src==='all'?'bg-blue-900/30 border-2 border-blue-500 text-white':'bg-slate-800 border-2 border-slate-700 text-slate-400'}`;
+            document.getElementById('btn-src-mistakes').className = `p-3 rounded-lg font-bold transition ${src==='mistakes'?'bg-blue-900/30 border-2 border-blue-500 text-white':'bg-slate-800 border-2 border-slate-700 text-slate-400 disabled:opacity-50'}`;
+        }
+
+        function setFilterQty(q) {
+            state.filter.qty = q;
+            [10, 30, 'all'].forEach(x => {
+                const btn = document.getElementById(`btn-qty-${x}`);
+                btn.className = `p-3 rounded-lg font-bold transition ${x===q ? 'bg-blue-900/30 border-2 border-blue-500 text-blue-400' : 'bg-slate-800 border-2 border-slate-700 text-white hover:border-slate-500'}`;
             });
         }
 
-        // --- PAGE 3.5 LOGIC (Quiz Engine) ---
-        function startQuizEngine(mode, forceNoShuffle = false) {
-            state.mode = mode;
-            // Deep copy and shuffle options and questions (unless forcing no shuffle)
-            state.activeQuestions = state.rawQuestions.map(q => {
-                let opts = [
-                    {k: 'A', text: q.option_a}, {k: 'B', text: q.option_b}, 
-                    {k: 'C', text: q.option_c}, {k: 'D', text: q.option_d}
-                ];
-                let correctText = opts.find(o => o.k === q.correct_option?.trim().toUpperCase())?.text;
-                if(!forceNoShuffle) opts.sort(() => 0.5 - Math.random());
+        function renderFilterSubjects() {
+            document.getElementById('filter-subject-list').innerHTML = SUBJECTS.map(s => {
+                const isChecked = state.filter.subjects.includes(s);
+                return `<label class="flex items-center gap-3 p-3 bg-slate-800 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-700">
+                    <input type="checkbox" value="${s}" ${isChecked?'checked':''} onchange="toggleFilterSub(this)" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 bg-slate-700 border-slate-600">
+                    <span class="text-sm font-bold text-slate-300">${s}</span>
+                </label>`;
+            }).join('');
+        }
+
+        function toggleFilterSub(el) {
+            if(el.checked) state.filter.subjects.push(el.value);
+            else state.filter.subjects = state.filter.subjects.filter(s => s !== el.value);
+        }
+        function toggleAllSubjects() {
+            state.filter.subjects = state.filter.subjects.length === SUBJECTS.length ? [] : [...SUBJECTS];
+            renderFilterSubjects();
+        }
+
+        async function launchFilteredSession(mode) {
+            if(state.filter.subjects.length === 0) return alert("Select at least one subject.");
+            
+            const storeName = state.filter.bank || (state.filter.source === 'mistakes' ? 'mistakes' : 'questions');
+            let pool = await getStoreAll(storeName);
+
+            pool = pool.filter(q => state.filter.subjects.includes(q.category3));
+            if(state.filter.catKey) pool = pool.filter(q => q[state.filter.catKey] === state.filter.catVal);
+
+            if(pool.length === 0) return alert("No questions found matching these filters.");
+
+            if(state.filter.qty !== 'all') pool = pool.sort(() => 0.5 - Math.random()).slice(0, state.filter.qty);
+            else pool = pool.sort(() => 0.5 - Math.random());
+
+            state.rawQ = pool;
+            state.fileTitle = state.filter.bank ? `${state.filter.bank.toUpperCase()} REVIEW` : "Custom Session";
+            state.activeFileId = 'custom_session';
+            state.isOffTheRecord = storeName === 'mistakes' || state.filter.bank; 
+            state.revBankType = state.filter.bank || (state.filter.source === 'mistakes' ? 'mistakes' : null);
+            
+            startQuizEngine(mode);
+        }
+
+        // --- UPLOADS & FILE SYSTEM ---
+        async function handleSubjectClick(sub) {
+            state.filter.subjects = [sub];
+            document.getElementById('library-title').innerText = sub;
+            document.getElementById('upload-conf').classList.add('hidden');
+            const files = await getStoreAll('files');
+            const subFiles = files.filter(f => f.subject === sub);
+            const list = document.getElementById('library-files-list');
+            list.innerHTML = subFiles.length ? subFiles.map(f => `
+                <button onclick="launchSavedFile('${f.id}', '${f.name}')" class="p-6 bg-slate-800 rounded-2xl border border-slate-700 hover:border-blue-500 transition text-left group">
+                    <p class="font-bold text-white group-hover:text-blue-300 truncate">${f.name}</p>
+                    <p class="text-xs text-slate-400 mt-2">${f.count} Qs • ${f.date.split(',')[0]}</p>
+                </button>`).join('') : `<p class="text-slate-500 py-4">No files uploaded for ${sub}.</p>`;
+            navigate('library');
+        }
+
+        function handleDrop(e) { e.preventDefault(); parseCSV(e.dataTransfer.files[0]); }
+        function handleFileSelect(e) { parseCSV(e.target.files[0]); }
+        function parseCSV(file) {
+            if(!file || !file.name.endsWith('.csv')) return alert("CSV files only.");
+            Papa.parse(file, { header: true, skipEmptyLines: true, complete: res => {
+                const valid = res.data.filter(r => r.question && r.correct_options && r.category3);
+                if(!valid.length) return alert("Invalid Schema. Must include 'question', 'correct_options', 'category3'.");
                 
-                return { ...q, shuffledOptions: opts, correctText: correctText, answered: false };
+                const fileId = 'file_' + Date.now();
+                state.pendingUpload = {
+                    fileRecord: { id: fileId, subject: valid[0].category3, name: file.name, date: new Date().toLocaleString(), count: valid.length },
+                    questions: valid.map((q, i) => ({ ...q, uniqueId: `${fileId}_${i}`, fileId: fileId }))
+                };
+                document.getElementById('file-name-display').innerText = `${file.name} (${valid.length} Qs mapped to ${valid[0].category3})`;
+                document.getElementById('upload-conf').classList.remove('hidden');
+            }});
+        }
+
+        async function processUploadToDB() {
+            if(!state.pendingUpload) return;
+            const { fileRecord, questions } = state.pendingUpload;
+            await putStore('files', fileRecord);
+            await execStore('questions', 'readwrite', s => { questions.forEach(q => s.put(q)); return s.put(questions[0]); }); 
+            launchSavedFile(fileRecord.id, fileRecord.name);
+        }
+
+        async function launchSavedFile(fileId, fileName) {
+            const allQ = await getStoreAll('questions');
+            state.rawQ = allQ.filter(q => q.fileId === fileId);
+            state.activeFileId = fileId; state.fileTitle = fileName; state.isOffTheRecord = false; state.revBankType = null;
+            document.getElementById('strat-file-name').innerText = `${fileName} (${state.rawQ.length} Qs)`;
+            navigate('strategy');
+        }
+
+        async function renderUploads() {
+            const files = await getStoreAll('files');
+            document.getElementById('uploads-tbody').innerHTML = files.map(f => `
+                <tr class="border-b border-slate-700/50">
+                    <td class="p-3 text-slate-400">${f.date.split(',')[0]}</td>
+                    <td class="p-3"><span class="px-2 py-1 bg-slate-700 text-xs rounded">${f.subject}</span></td>
+                    <td class="p-3 font-bold text-slate-200">${f.name}</td>
+                    <td class="p-3 text-slate-400">${f.count}</td>
+                    <td class="p-3 text-right"><button onclick="deleteFile('${f.id}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
+                </tr>`).join('');
+        }
+
+        async function deleteFile(id) {
+            if(!confirm("Delete file and its questions? (Mistakes will be kept)")) return;
+            await deleteStoreItem('files', id);
+            const allQ = await getStoreAll('questions');
+            const qsToDelete = allQ.filter(q => q.fileId === id);
+            await execStore('questions', 'readwrite', s => { qsToDelete.forEach(q => s.delete(q.uniqueId)); return s.get('dummy'); });
+            renderDashboard();
+        }
+
+        async function globalClear(target) {
+            if(target === 'history' && confirm('Clear ALL history?')) await clearStore('history');
+            if(target === 'uploads' && confirm('Clear ALL uploads?')) { await clearStore('files'); await clearStore('questions'); }
+            if(target === 'banks' && confirm('Clear ALL Mistakes & Flags?')) { await clearStore('mistakes'); await clearStore('flags'); }
+            renderDashboard();
+        }
+
+        // --- HISTORY REVIEW (RESTORED) ---
+        async function openAttemptConfig(attId) {
+            const hist = await getStoreAll('history'); const att = hist.find(x => x.id === attId);
+            state.selAttemptId = attId; 
+            document.getElementById('att-meta-main').innerText = `${att.file} • ${att.date}`;
+            document.getElementById('att-score-disp').innerText = `${att.score}/${att.total}`;
+            document.getElementById('att-miss-disp').innerText = att.missed ? att.missed.length : 0;
+            
+            const btnRM = document.getElementById('btn-att-rm'); const btnWM = document.getElementById('btn-att-wm');
+            if(!att.missed || att.missed.length === 0) { btnRM.disabled = true; btnWM.disabled = true; btnRM.classList.add('opacity-50', 'cursor-not-allowed'); btnWM.classList.add('opacity-50', 'cursor-not-allowed'); }
+            else { btnRM.disabled = false; btnWM.disabled = false; btnRM.classList.remove('opacity-50', 'cursor-not-allowed'); btnWM.classList.remove('opacity-50', 'cursor-not-allowed'); }
+            navigate('history-review');
+        }
+
+        async function relaunchHistory(action, forcedMode) {
+            const hist = await getStoreAll('history'); const att = hist.find(x => x.id === state.selAttemptId);
+            if(!att) return;
+            state.filter.subjects = att.subject.split(',');
+            state.fileTitle = att.file; state.activeFileId = 'history_relaunch';
+            state.isOffTheRecord = false; state.revBankType = null;
+            state.rawQ = action.includes('mistakes') ? att.missed : att.raw;
+            if(!state.rawQ || state.rawQ.length === 0) return alert("No mistakes found.");
+            
+            startQuizEngine(forcedMode);
+        }
+
+        // --- QUIZ ENGINE ---
+        function startQuizEngine(mode) {
+            state.mode = mode; state.idx = 0; state.score = 0; state.timeSpent = 0; state.timeLeft = EXAM_TIME;
+            
+            state.actQ = state.rawQ.map(q => {
+                let opts = [{k:'A', t:q.option_a}, {k:'B', t:q.option_b}, {k:'C', t:q.option_c}, {k:'D', t:q.option_d}].filter(o => o.t);
+                let corArr = q.correct_options.toUpperCase().split(',').map(x=>x.trim());
+                let corTexts = opts.filter(o => corArr.includes(o.k)).map(o=>o.t);
+                
+                if(mode !== 'watch') opts.sort(() => 0.5 - Math.random());
+                const isMRQ = q.Category4 === 'Multiple-Response' || corTexts.length > 1;
+                
+                // If launching from history mistake review, preserve previous answers for watch mode
+                let previousUA = q.previousUserAnswers || [];
+                return {...q, opts, corTexts, isMRQ, answered: false, userAnswers: previousUA, timeTaken: 0};
             });
             
-            if(!forceNoShuffle) state.activeQuestions.sort(() => 0.5 - Math.random());
-
-            state.currentIndex = 0;
-            state.score = 0;
-            state.timeRemaining = EXAM_TIME;
-            state.timeElapsed = 0;
-            state.missedQuestions = [];
-
-            // UI Setup
             navigate('quiz');
-            document.getElementById('header-subtitle').innerText = mode.toUpperCase() + " MODE";
-            document.getElementById('quiz-stats').classList.remove('hidden');
-            document.getElementById('header-score').innerText = `0 / ${state.activeQuestions.length}`;
+            document.getElementById('header-subtitle').innerText = state.fileTitle;
+            document.getElementById('header-score').innerText = `0 / ${state.actQ.length}`;
             
-            const timerEl = document.getElementById('timer-container');
-            const submitBtn = document.getElementById('btn-submit-exam');
+            const btnEarly = document.getElementById('btn-early-submit');
+            if(mode === 'exam') { runTimer(true); btnEarly.classList.remove('hidden'); }
+            else { runTimer(false); btnEarly.classList.add('hidden'); }
             
-            if (mode === 'exam') {
-                timerEl.classList.remove('hidden');
-                submitBtn.classList.remove('hidden');
-                startTimer();
-            } else {
-                timerEl.classList.add('hidden');
-                submitBtn.classList.add('hidden');
-            }
-
-            renderQuestion();
+            renderQ();
         }
 
-        function startTimer() {
-            document.getElementById('header-timer').classList.remove('timer-warning');
-            state.timerInterval = setInterval(() => {
-                state.timeRemaining--;
-                state.timeElapsed++;
-                
-                let m = Math.floor(state.timeRemaining / 60).toString().padStart(2, '0');
-                let s = (state.timeRemaining % 60).toString().padStart(2, '0');
-                let el = document.getElementById('header-timer');
-                el.innerText = `${m}:${s}`;
-
-                if(state.timeRemaining <= 300) el.classList.add('timer-warning'); // 5 mins
-                if(state.timeRemaining <= 0) {
-                    clearInterval(state.timerInterval);
-                    alert("Time's Up! Auto-submitting exam.");
-                    finishExamEarly();
+        function runTimer(isExam) {
+            document.getElementById('timer-container').classList.remove('hidden');
+            const el = document.getElementById('header-timer'); el.classList.remove('timer-warning');
+            state.timer = setInterval(() => {
+                state.timeSpent++;
+                if(isExam) {
+                    state.timeLeft--;
+                    if(state.timeLeft <= 300) el.classList.add('timer-warning');
+                    if(state.timeLeft <= 0) finishExam();
+                    el.innerText = `${Math.floor(state.timeLeft/60).toString().padStart(2,'0')}:${(state.timeLeft%60).toString().padStart(2,'0')}`;
+                } else {
+                    el.innerText = `${Math.floor(state.timeSpent/60).toString().padStart(2,'0')}:${(state.timeSpent%60).toString().padStart(2,'0')}`;
                 }
             }, 1000);
         }
 
-        function renderQuestion() {
-            const q = state.activeQuestions[state.currentIndex];
-            const pct = ((state.currentIndex) / state.activeQuestions.length) * 100;
-            document.getElementById('progress-bar').style.width = `${pct}%`;
+        async function renderQ() {
+            const q = state.actQ[state.idx];
+            state.qStartTime = state.timeSpent; 
             
-            document.getElementById('q-counter').innerText = `Q ${state.currentIndex + 1} / ${state.activeQuestions.length}`;
-            document.getElementById('q-category').innerText = q.category2 || q.category1 || 'General';
+            document.getElementById('progress-bar').style.width = `${((state.idx)/state.actQ.length)*100}%`;
+            document.getElementById('q-counter').innerText = `Question ${state.idx + 1} of ${state.actQ.length}`;
+            document.getElementById('q-meta-tags').innerText = `${q.Category4 || 'Direct'} • ${q.difficulty || 'Unrated'}`;
             document.getElementById('q-text').innerText = q.question;
             
-            const btnNext = document.getElementById('btn-next-q');
-            btnNext.innerText = (state.currentIndex === state.activeQuestions.length - 1) ? "Finish" : "Next Question";
-            btnNext.classList.add('hidden'); // Hide until answered
+            const flags = await getStoreAll('flags');
+            document.getElementById('btn-flag').className = `p-2 rounded-lg transition ${flags.some(x => x.uniqueId === q.uniqueId) ? 'bg-purple-900 text-purple-400' : 'bg-slate-800 text-slate-400 hover:text-purple-400'}`;
             
-            const expBox = document.getElementById('explanation-box');
-            expBox.classList.add('hidden');
-
-            const grid = document.getElementById('options-grid');
-            grid.innerHTML = '';
-
-            q.shuffledOptions.forEach((opt, idx) => {
-                const btn = document.createElement('button');
-                btn.className = "text-left w-full p-5 rounded-xl border-2 border-slate-700 bg-slate-800 hover:bg-slate-700 hover:border-slate-500 transition font-medium text-slate-200 flex items-center gap-4 group option-btn";
-                // A, B, C, D visual indicators based on index, not original key
-                const labels = ['A', 'B', 'C', 'D'];
-                btn.innerHTML = `<span class="flex-shrink-0 w-8 h-8 rounded bg-slate-900 text-slate-400 flex items-center justify-center font-bold group-hover:text-blue-400">${labels[idx]}</span> <span>${opt.text}</span>`;
+            const grid = document.getElementById('options-grid'); grid.innerHTML = '';
+            q.opts.forEach((o, i) => {
+                const b = document.createElement('button');
+                b.className = "text-left p-5 rounded-xl border-2 border-slate-700 bg-slate-800 hover:bg-slate-700 font-medium flex items-center gap-4 opt-btn transition group";
+                b.innerHTML = `<span class="flex-shrink-0 w-8 h-8 rounded bg-slate-900 text-slate-400 flex items-center justify-center font-bold">${['A','B','C','D'][i]}</span> <span class="text-slate-200">${o.t}</span>`;
                 
                 if(state.mode === 'watch') {
-                    btn.disabled = true;
-                    btn.classList.remove('hover:bg-slate-700', 'hover:border-slate-500');
-                    if(opt.text === q.correctText) btn.classList.add('correct-ans');
+                    b.disabled = true;
+                    if(q.corTexts.includes(o.t)) b.classList.add('correct-ans');
+                    else if(q.userAnswers?.includes(o.t)) b.classList.add('wrong-ans');
                 } else {
-                    btn.onclick = () => handleAnswer(opt, btn);
+                    b.onclick = () => handleAnsClick(o, b, q);
                 }
-                grid.appendChild(btn);
+                grid.appendChild(b);
             });
-
+            
+            const expBox = document.getElementById('explanation-box');
+            const btnNext = document.getElementById('btn-next-q');
+            const btnMrq = document.getElementById('btn-check-mrq');
+            
+            btnNext.classList.toggle('hidden', state.mode !== 'watch');
+            btnNext.innerText = state.idx === state.actQ.length - 1 ? 'Finish Exam' : 'Next Question';
+            btnMrq.classList.add('hidden');
+            
             if(state.mode === 'watch') {
-                btnNext.classList.remove('hidden');
-                if(q.explanation) {
-                    document.getElementById('explanation-text').innerText = q.explanation;
-                    expBox.classList.remove('hidden');
-                }
+                showExplanation(q, expBox);
+            } else { 
+                expBox.classList.add('hidden'); 
+                if(q.isMRQ) btnMrq.classList.remove('hidden');
             }
         }
 
-        function handleAnswer(selectedOpt, btnElement) {
-            const q = state.activeQuestions[state.currentIndex];
-            if(q.answered) return; // Prevent double click
-            q.answered = true;
-
-            const isCorrect = selectedOpt.text === q.correctText;
-            if(isCorrect) state.score++;
-            else {
-                // Save original object to missed list
-                const originalQ = state.rawQuestions.find(rq => rq.question === q.question);
-                if(originalQ) state.missedQuestions.push(originalQ);
-            }
-
-            document.getElementById('header-score').innerText = `${state.score} / ${state.activeQuestions.length}`;
-
-            const buttons = document.querySelectorAll('.option-btn');
-            buttons.forEach(b => {
-                b.disabled = true;
-                b.classList.remove('hover:bg-slate-700', 'hover:border-slate-500');
-            });
-
-            if(state.mode === 'practice') {
-                if(isCorrect) btnElement.classList.add('correct-ans');
-                else {
-                    btnElement.classList.add('wrong-ans');
-                    // Find correct button and highlight
-                    buttons.forEach((b, idx) => {
-                        if(q.shuffledOptions[idx].text === q.correctText) b.classList.add('correct-ans');
-                    });
-                    // Show explanation
-                    if(q.explanation) {
-                        document.getElementById('explanation-text').innerText = q.explanation;
-                        document.getElementById('explanation-box').classList.remove('hidden');
-                    }
+        function handleAnsClick(sel, btn, q) {
+            if(q.answered) return;
+            
+            if(q.isMRQ) {
+                const selIdx = q.userAnswers.indexOf(sel.t);
+                if(selIdx > -1) {
+                    q.userAnswers.splice(selIdx, 1);
+                    btn.classList.remove('selected-mrq');
+                } else {
+                    q.userAnswers.push(sel.t);
+                    btn.classList.add('selected-mrq');
                 }
-            } else if (state.mode === 'exam') {
-                // Just highlight selection neutrally
-                btnElement.classList.add('border-blue-500', 'bg-slate-700');
+            } else {
+                q.userAnswers = [sel.t];
+                gradeQuestion(q);
             }
+        }
 
+        function submitMRQ() {
+            const q = state.actQ[state.idx];
+            if(!q.userAnswers.length) return alert("Select at least one option.");
+            document.getElementById('btn-check-mrq').classList.add('hidden');
+            gradeQuestion(q);
+        }
+
+        async function gradeQuestion(q) {
+            q.answered = true;
+            q.timeTaken = state.timeSpent - state.qStartTime;
+
+            const isCor = q.userAnswers.length === q.corTexts.length && q.userAnswers.every(v => q.corTexts.includes(v));
+            
+            if(isCor) state.score++; 
+            else if(!state.isOffTheRecord) await putStore('mistakes', state.rawQ.find(x => x.uniqueId === q.uniqueId));
+            
+            document.getElementById('header-score').innerText = `${state.score} / ${state.actQ.length}`;
+            
+            const btns = document.querySelectorAll('.opt-btn');
+            btns.forEach(b => b.disabled = true);
+            
+            if(state.mode === 'practice') {
+                btns.forEach((b) => {
+                    const optText = b.querySelector('span:nth-child(2)').innerText;
+                    if(q.corTexts.includes(optText)) b.classList.add('correct-ans', 'border-green-500');
+                    else if(q.userAnswers.includes(optText)) b.classList.add('wrong-ans', 'border-red-500');
+                    b.classList.remove('selected-mrq');
+                });
+                showExplanation(q, document.getElementById('explanation-box'));
+            } else {
+                btns.forEach(b => { if(q.userAnswers.includes(b.querySelector('span:nth-child(2)').innerText)) b.classList.add('border-blue-500'); });
+            }
+            
             document.getElementById('btn-next-q').classList.remove('hidden');
         }
 
-        function handleNextClick() {
-            if(state.mode !== 'watch' && !state.activeQuestions[state.currentIndex].answered) return;
+        function showExplanation(q, expBox) {
+            document.getElementById('explanation-text').innerText = q.explanation || 'No logic provided.';
+            let metaHtml = '';
+            if(q.reference) metaHtml += `<span class="bg-slate-900 px-2 py-1 rounded mr-2">Ref: ${q.reference}</span>`;
+            if(q.tags) metaHtml += `<span class="bg-slate-900 px-2 py-1 rounded">Tags: ${q.tags}</span>`;
+            document.getElementById('exp-meta').innerHTML = metaHtml;
             
-            if(state.currentIndex < state.activeQuestions.length - 1) {
-                state.currentIndex++;
-                renderQuestion();
-            } else {
-                finishExamEarly();
-            }
+            const rmBtn = document.getElementById('btn-remove-bank');
+            if(state.revBankType) {
+                rmBtn.classList.remove('hidden'); rmBtn.innerHTML = `<i data-lucide="trash-2" class="w-4 h-4"></i> Remove from Bank`; rmBtn.disabled = false;
+                rmBtn.onclick = async () => { await deleteStoreItem(state.revBankType, q.uniqueId); rmBtn.innerText = "Removed!"; rmBtn.disabled = true; }
+            } else rmBtn.classList.add('hidden');
+            
+            expBox.classList.remove('hidden');
+            lucide.createIcons();
         }
 
-        // --- PAGE 4 LOGIC (Results) ---
-        function finishExamEarly() {
-            clearInterval(state.timerInterval);
-            
-            // Only save history if it was an actual attempt (not watch mode)
-            if(state.mode === 'practice' || state.mode === 'exam') {
-                const record = {
-                    id: 'att_' + Date.now(),
-                    date: new Date().toLocaleString(),
-                    subject: state.activeSubject,
-                    fileName: state.fileName,
-                    score: state.score,
-                    total: state.activeQuestions.length,
-                    timeSpent: state.timeElapsed,
-                    mode: state.mode,
-                    allQuestions: state.rawQuestions,
-                    missedQuestions: state.missedQuestions
-                };
-                saveHistory(record);
-            }
-
-            renderResultsPage();
+        async function toggleFlag() {
+            const q = state.actQ[state.idx];
+            const btnFlag = document.getElementById('btn-flag');
+            const flags = await getStoreAll('flags');
+            const isFlagged = flags.some(x => x.uniqueId === q.uniqueId);
+            if(isFlagged) { await deleteStoreItem('flags', q.uniqueId); btnFlag.className = 'p-2 rounded-lg transition bg-slate-800 text-slate-400'; } 
+            else { await putStore('flags', state.rawQ.find(x => x.uniqueId === q.uniqueId)); btnFlag.className = 'p-2 rounded-lg transition bg-purple-900 text-purple-400'; }
         }
 
-        function renderResultsPage() {
-            navigate(4);
-            const accuracy = Math.round((state.score / state.activeQuestions.length) * 100) || 0;
-            
-            document.getElementById('result-meta').innerText = `${state.activeSubject} • ${state.fileName} • ${state.mode.toUpperCase()}`;
-            document.getElementById('result-score').innerText = `${state.score}/${state.activeQuestions.length}`;
-            document.getElementById('result-accuracy').innerText = `${accuracy}%`;
-            document.getElementById('result-time').innerText = `${Math.floor(state.timeElapsed/60)}m ${state.timeElapsed%60}s`;
-
-            // Handle Confetti
-            const conf = document.getElementById('confetti');
-            if(accuracy === 100 && state.mode !== 'watch') {
-                conf.classList.remove('hidden');
-                conf.innerHTML = '<div class="absolute inset-0 bg-[url(\'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxjaXJjbGUgY3g9IjEwJSIgY3k9IjEwJSIgcj0iNCIgZmlsbD0iI2Y1OThmNSIvPjxjaXJjbGUgY3g9IjMwJSIgY3k9IjIwJSIgcj0iNCIgZmlsbD0iIzN0YjgyZiIvPjxjaXJjbGUgY3g9IjgwJSIgY3k9IjE1JSIgcj0iNCIgZmlsbD0iI2UzYTNlOCIvPjxjaXJjbGUgY3g9IjkwJSIgY3k9IjQwJSIgcj0iNCIgZmlsbD0iIzNiODI4ZiIvPjxjaXJjbGUgY3g9IjI1JSIgY3k9IjYwJSIgcj0iNCIgZmlsbD0iI2Y1OThmNSIvPjxjaXJjbGUgY3g9IjcwJSIgY3k9Ijc1JSIgcj0iNCIgZmlsbD0iI2UzYTNlOCIvPjwvc3ZnPg==\')] opacity-50"></div>';
-            } else {
-                conf.classList.add('hidden');
-            }
-
-            // Button visibility
-            const hasMistakes = state.missedQuestions.length > 0;
-            const btnRM = document.getElementById('btn-res-mistakes');
-            const btnWM = document.getElementById('btn-res-watch-mistakes');
-            
-            if(hasMistakes) {
-                btnRM.classList.remove('opacity-50', 'cursor-not-allowed');
-                btnRM.disabled = false;
-                btnWM.classList.remove('opacity-50', 'cursor-not-allowed');
-                btnWM.disabled = false;
-            } else {
-                btnRM.classList.add('opacity-50', 'cursor-not-allowed');
-                btnRM.disabled = true;
-                btnWM.classList.add('opacity-50', 'cursor-not-allowed');
-                btnWM.disabled = true;
-            }
+        function nextQuestion() {
+            if(state.mode !== 'watch' && !state.actQ[state.idx].answered) return;
+            if(state.idx < state.actQ.length - 1) { state.idx++; renderQ(); } else finishExam();
         }
 
-        function relaunchFromResults(actionStr) {
-            if(actionStr === 'retake_all') {
-                // rawQuestions already loaded
-                navigate(3);
-            } else if (actionStr === 'retake_mistakes') {
-                state.rawQuestions = state.missedQuestions;
-                navigate(3);
-            } else if (actionStr === 'watch_all') {
-                startQuizEngine('watch', true);
-            } else if (actionStr === 'watch_mistakes') {
-                state.rawQuestions = state.missedQuestions;
-                startQuizEngine('watch', true);
-            }
+        function confirmEarlySubmit() {
+            const unans = state.actQ.filter(q => !q.answered).length;
+            document.getElementById('modal-submit-text').innerText = `You have ${unans} unanswered questions.`;
+            document.getElementById('modal-submit').classList.remove('hidden');
         }
 
-        // Boot
-        window.onload = init;
+        async function finishExam() {
+            clearInterval(state.timer);
+            document.getElementById('modal-submit').classList.add('hidden');
+            
+            state.actQ.forEach(q => { if(!q.answered) { q.answered=true; q.userAnswers=[]; q.timeTaken = state.timeSpent - state.qStartTime;} });
+            
+            const missed = state.actQ.filter(q => {
+                const isCor = q.userAnswers.length === q.corTexts.length && q.userAnswers.every(v => q.corTexts.includes(v));
+                if(!isCor && !state.isOffTheRecord) putStore('mistakes', state.rawQ.find(x => x.uniqueId === q.uniqueId)); 
+                return !isCor;
+            });
+            state.missedQ = missed.map(q => ({...state.rawQ.find(x => x.uniqueId === q.uniqueId), previousUserAnswers: q.userAnswers}));
+
+            if(!state.isOffTheRecord && (state.mode === 'practice' || state.mode === 'exam')) {
+                await putStore('history', { 
+                    id: 'att_'+Date.now(), date: new Date().toLocaleString(), subject: state.filter.subjects.join(','), 
+                    file: state.fileTitle, score: state.score, total: state.actQ.length, raw: state.rawQ, missed: state.missedQ 
+                });
+            }
+            
+            navigate('results');
+            document.getElementById('res-score').innerText = `${state.score}/${state.actQ.length}`;
+            document.getElementById('res-acc').innerText = `${Math.round((state.score/state.actQ.length)*100)||0}%`;
+            document.getElementById('res-time').innerText = `${Math.floor(state.timeSpent/60)}m ${state.timeSpent%60}s`;
+            
+            const btnM = document.getElementById('res-btn-mistake'); const btnWM = document.getElementById('res-btn-wmistake');
+            if(missed.length) { btnM.disabled=false; btnWM.disabled=false; btnM.classList.remove('opacity-50'); btnWM.classList.remove('opacity-50'); }
+            else { btnM.disabled=true; btnWM.disabled=true; btnM.classList.add('opacity-50'); btnWM.classList.add('opacity-50'); }
+        }
+
+        function relaunchFromRes(action) {
+            const mode = action.includes('watch') ? 'watch' : 'practice';
+            if(action.includes('mistakes')) state.rawQ = state.missedQ; 
+            startQuizEngine(mode);
+        }
     </script>
 </body>
 </html>
